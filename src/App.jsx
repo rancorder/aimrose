@@ -1,9 +1,41 @@
 import { useState, useEffect, useRef } from "react";
 
+// ─── Routing ──────────────────────────────────────────────────────────
 function getRoute() {
   return window.location.pathname === "/presenter" ? "presenter" : "customer";
 }
 
+// ─── BroadcastChannel sync ────────────────────────────────────────────
+const CHANNEL = "aim-rose-sync";
+
+function useSyncSend() {
+  const ch = useRef(null);
+  const ready = useRef(false);
+  useEffect(() => {
+    ch.current = new BroadcastChannel(CHANNEL);
+    ready.current = true;
+    return () => { ch.current.close(); ready.current = false; };
+  }, []);
+  // useRefでラップして毎回同一関数参照を返す（useEffect依存配列に入れても無限ループしない）
+  const fn = useRef((sectionId) => {
+    if (ready.current) {
+      ch.current.postMessage({ sectionId });
+    } else {
+      setTimeout(() => ch.current?.postMessage({ sectionId }), 150);
+    }
+  });
+  return fn.current;
+}
+
+function useSyncReceive(onSection) {
+  useEffect(() => {
+    const ch = new BroadcastChannel(CHANNEL);
+    ch.onmessage = (e) => { if (e.data?.sectionId) onSection(e.data.sectionId); };
+    return () => ch.close();
+  }, [onSection]);
+}
+
+// ─── Hooks ────────────────────────────────────────────────────────────
 function useReveal(threshold = 0.12) {
   const ref = useRef(null);
   const [v, setV] = useState(false);
@@ -49,12 +81,9 @@ const C = {
 // ─── Shared components ────────────────────────────────────────────────
 function Card({ children, accent, style: s = {} }) {
   return (
-    <div style={{
-      background: C.white, border: `1.5px solid ${accent || C.border}`,
-      borderRadius: 18, padding: "28px 24px",
-      boxShadow: `0 4px 24px ${accent ? accent + "18" : "#e8847a0e"}`,
-      ...s,
-    }}>{children}</div>
+    <div style={{ background: C.white, border: `1.5px solid ${accent || C.border}`, borderRadius: 18, padding: "28px 24px", boxShadow: `0 4px 24px ${accent ? accent + "18" : "#e8847a0e"}`, ...s }}>
+      {children}
+    </div>
   );
 }
 
@@ -104,7 +133,9 @@ function QAItem({ q, a, delay }) {
   );
 }
 
-// ─── CUSTOMER SECTIONS ────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════
+// CUSTOMER SECTIONS MAP
+// ════════════════════════════════════════════════════════════════════
 const SECTIONS = [
   { id: "intro",    label: "イントロ" },
   { id: "overview", label: "サービス概要" },
@@ -135,7 +166,7 @@ function Sidebar({ active }) {
   );
 }
 
-function Section({ id, bg, children }) {
+function CSection({ id, bg, children }) {
   return (
     <section id={id} style={{ padding: "88px 0", background: bg || C.bg, borderBottom: `1px solid ${C.border}` }}>
       {children}
@@ -150,15 +181,18 @@ function CustomerView() {
   const active = useActiveSection(SECTIONS.map(s => s.id));
   const W = { maxWidth: 900, margin: "0 auto", padding: "0 24px" };
 
+  // Receive sync from presenter → scroll to section
+  useSyncReceive((sectionId) => {
+    const el = document.getElementById(sectionId);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
   return (
     <>
-      {/* Progress bar */}
       <div style={{ position: "fixed", top: 0, left: 0, right: 0, height: 3, zIndex: 200, background: C.border }}>
         <div style={{ height: "100%", background: `linear-gradient(90deg,${C.rose},${C.pink})`, width: `${((SECTIONS.findIndex(s => s.id === active) + 1) / SECTIONS.length) * 100}%`, transition: "width .4s ease" }} />
       </div>
-
       <Sidebar active={active} />
-
       <main style={{ marginLeft: 48 }}>
 
         {/* INTRO */}
@@ -173,66 +207,58 @@ function CustomerView() {
               洋裁教室<br />定期パッケージ
             </h1>
             <p style={{ marginTop: 28, fontSize: "clamp(15px,2.2vw,18px)", color: C.muted, lineHeight: 2, opacity: 0, animation: "fadeUp .9s ease .7s forwards" }}>ご入居者様の楽しみ・充実時間創造</p>
-            <a href="#overview" style={{ display: "inline-block", marginTop: 52, padding: "16px 44px", background: `linear-gradient(135deg,${C.rose},${C.pink})`, color: "#fff", borderRadius: 50, textDecoration: "none", fontSize: 15, fontWeight: 500, boxShadow: `0 10px 36px ${C.rose}38`, opacity: 0, animation: "fadeUp 1s ease .9s forwards", transition: "transform .2s,box-shadow .2s" }}
-              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = `0 16px 44px ${C.rose}50`; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = `0 10px 36px ${C.rose}38`; }}>
+            <a href="#overview" style={{ display: "inline-block", marginTop: 52, padding: "16px 44px", background: `linear-gradient(135deg,${C.rose},${C.pink})`, color: "#fff", borderRadius: 50, textDecoration: "none", fontSize: 15, fontWeight: 500, boxShadow: `0 10px 36px ${C.rose}38`, opacity: 0, animation: "fadeUp 1s ease .9s forwards", transition: "transform .2s" }}
+              onMouseEnter={e => e.currentTarget.style.transform = "translateY(-3px)"}
+              onMouseLeave={e => e.currentTarget.style.transform = ""}>
               サービス内容を見る ↓
             </a>
           </div>
         </section>
 
         {/* SERVICE OVERVIEW */}
-        <Section id="overview" bg={C.white}>
+        <CSection id="overview" bg={C.white}>
           <div style={W}>
             <H sub="SERVICE OVERVIEW">サービスのご紹介</H>
             <R d={0.05}><p style={{ fontSize: 16, color: C.muted, lineHeight: 2, marginBottom: 40 }}>経験豊富な講師が介護施設様へ直接伺い、洋裁の楽しさをお届けします。</p></R>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 20, marginBottom: 32 }}>
               {[{ n: "10名", label: "在籍講師数", d: 0 }, { n: "300〜350名", label: "現在の生徒様数", d: 0.1 }, { n: "月1回〜", label: "柔軟な開催頻度", d: 0.2 }, { n: "ミシン・手縫い", label: "施設環境に対応", d: 0.3 }].map(s => (
-                <R key={s.label} d={s.d}>
-                  <Card>
-                    <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 30, fontWeight: 900, background: `linear-gradient(135deg,${C.rose},${C.pink})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: 8, lineHeight: 1 }}>{s.n}</div>
-                    <div style={{ fontSize: 13, color: C.muted }}>{s.label}</div>
-                  </Card>
-                </R>
+                <R key={s.label} d={s.d}><Card>
+                  <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 30, fontWeight: 900, background: `linear-gradient(135deg,${C.rose},${C.pink})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: 8, lineHeight: 1 }}>{s.n}</div>
+                  <div style={{ fontSize: 13, color: C.muted }}>{s.label}</div>
+                </Card></R>
               ))}
             </div>
-            <R d={0.35}>
-              <div style={{ padding: "20px 28px", background: "linear-gradient(135deg,#fff0ee,#fce8f3)", border: `1.5px solid ${C.border}`, borderRadius: 14, fontSize: 14, color: C.muted, lineHeight: 1.9 }}>
-                <strong style={{ color: C.pink }}>環境対応力：</strong>ミシン持ち込みが困難な場合は手縫い中心の内容に切り替え可能。簡単制作〜小物づくりまで、ご入居者様の負担にならない内容構成。
-              </div>
-            </R>
+            <R d={0.35}><div style={{ padding: "20px 28px", background: "linear-gradient(135deg,#fff0ee,#fce8f3)", border: `1.5px solid ${C.border}`, borderRadius: 14, fontSize: 14, color: C.muted, lineHeight: 1.9 }}>
+              <strong style={{ color: C.pink }}>環境対応力：</strong>ミシン持ち込みが困難な場合は手縫い中心の内容に切り替え可能。簡単制作〜小物づくりまで、ご入居者様の負担にならない内容構成。
+            </div></R>
           </div>
-        </Section>
+        </CSection>
 
         {/* POSITIONING */}
-        <Section id="position" bg={C.bgAlt}>
+        <CSection id="position" bg={C.bgAlt}>
           <div style={W}>
             <H sub="MARKET POSITIONING">洋裁教室が選ばれる理由</H>
-            <R d={0.1}>
-              <Card style={{ marginBottom: 32 }}>
-                <div style={{ fontSize: 13, color: C.pink, letterSpacing: "0.12em", marginBottom: 14, fontFamily: "'Noto Sans JP',sans-serif", fontWeight: 500 }}>介護施設様の課題</div>
-                {["ご入居者様の楽しみづくり・手先を動かす活動の重要性が増大している", "単発イベントから→継続的に楽しめるプログラムへのニーズが増加している"].map((t, i) => (
-                  <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 10, fontSize: 14, color: C.muted, lineHeight: 1.8 }}>
-                    <span style={{ color: C.rose, flexShrink: 0, marginTop: 3 }}>▶</span>{t}
-                  </div>
-                ))}
-              </Card>
-            </R>
+            <R d={0.1}><Card style={{ marginBottom: 32 }}>
+              <div style={{ fontSize: 13, color: C.pink, letterSpacing: "0.12em", marginBottom: 14, fontFamily: "'Noto Sans JP',sans-serif", fontWeight: 500 }}>介護施設様の課題</div>
+              {["ご入居者様の楽しみづくり・手先を動かす活動の重要性が増大している", "単発イベントから→継続的に楽しめるプログラムへのニーズが増加している"].map((t, i) => (
+                <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 10, fontSize: 14, color: C.muted, lineHeight: 1.8 }}>
+                  <span style={{ color: C.rose, flexShrink: 0, marginTop: 3 }}>▶</span>{t}
+                </div>
+              ))}
+            </Card></R>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 16 }}>
               {[{ title: "完成物が残る", body: "形として手元に残る達成感", d: 0 }, { title: "達成感がある", body: "制作完了時の充実感", d: 0.1 }, { title: "会話が生まれる", body: "制作中の自然なコミュニケーション", d: 0.2 }, { title: "満足度向上", body: "継続的な楽しみの提供", d: 0.3 }].map(f => (
-                <R key={f.title} d={f.d}>
-                  <Card style={{ textAlign: "center" }}>
-                    <div style={{ fontFamily: "'Noto Serif JP',serif", fontWeight: 700, fontSize: 17, color: C.text, marginBottom: 8 }}>{f.title}</div>
-                    <div style={{ fontSize: 13, color: C.muted }}>{f.body}</div>
-                  </Card>
-                </R>
+                <R key={f.title} d={f.d}><Card style={{ textAlign: "center" }}>
+                  <div style={{ fontFamily: "'Noto Serif JP',serif", fontWeight: 700, fontSize: 17, color: C.text, marginBottom: 8 }}>{f.title}</div>
+                  <div style={{ fontSize: 13, color: C.muted }}>{f.body}</div>
+                </Card></R>
               ))}
             </div>
           </div>
-        </Section>
+        </CSection>
 
         {/* USP */}
-        <Section id="usp" bg={C.white}>
+        <CSection id="usp" bg={C.white}>
           <div style={W}>
             <H sub="WHY CHOOSE US">貴社メリット 3つのポイント</H>
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -253,42 +279,36 @@ function CustomerView() {
               ))}
             </div>
           </div>
-        </Section>
+        </CSection>
 
         {/* SERVICE */}
-        <Section id="service" bg={C.bgAlt}>
+        <CSection id="service" bg={C.bgAlt}>
           <div style={W}>
             <H sub="SERVICE DETAILS">貴施設に合わせたオーダーメイド設計</H>
-            <R d={0.1}>
-              <Card style={{ marginBottom: 32 }}>
-                <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 14, color: C.pink }}>制作物例</div>
-                <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
-                  <Chip>トートバッグ</Chip><Chip>小物類</Chip>
-                  <span style={{ fontSize: 13, color: C.muted }}>※施設様ご希望に合わせて調整可</span>
-                </div>
-              </Card>
-            </R>
+            <R d={0.1}><Card style={{ marginBottom: 32 }}>
+              <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 14, color: C.pink }}>制作物例</div>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+                <Chip>トートバッグ</Chip><Chip>小物類</Chip>
+                <span style={{ fontSize: 13, color: C.muted }}>※施設様ご希望に合わせて調整可</span>
+              </div>
+            </Card></R>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 16, marginBottom: 24 }}>
               {[{ n: "1", title: "ヒアリング", body: "参加人数・ご希望内容・開催頻度を確認し、プランを設計します。", d: 0 }, { n: "2", title: "プラン設計", body: "施設環境に合わせた内容調整。ミシン不可の場合も完全対応。", d: 0.15 }, { n: "3", title: "定期開催", body: "継続的な洋裁教室を実施。月1回〜、施設様のペースで。", d: 0.3 }].map(s => (
-                <R key={s.n} d={s.d}>
-                  <Card style={{ textAlign: "center", position: "relative" }}>
-                    <div style={{ position: "absolute", top: 14, right: 18, fontFamily: "'Playfair Display',serif", fontSize: 40, fontWeight: 900, color: `${C.rose}20` }}>{s.n}</div>
-                    <div style={{ fontFamily: "'Noto Serif JP',serif", fontWeight: 700, fontSize: 17, color: C.text, marginBottom: 10 }}>{s.title}</div>
-                    <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.9 }}>{s.body}</p>
-                  </Card>
-                </R>
+                <R key={s.n} d={s.d}><Card style={{ textAlign: "center", position: "relative" }}>
+                  <div style={{ position: "absolute", top: 14, right: 18, fontFamily: "'Playfair Display',serif", fontSize: 40, fontWeight: 900, color: `${C.rose}20` }}>{s.n}</div>
+                  <div style={{ fontFamily: "'Noto Serif JP',serif", fontWeight: 700, fontSize: 17, color: C.text, marginBottom: 10 }}>{s.title}</div>
+                  <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.9 }}>{s.body}</p>
+                </Card></R>
               ))}
             </div>
-            <R d={0.4}>
-              <div style={{ padding: "18px 24px", background: "linear-gradient(135deg,#fff0ee,#fce8f3)", border: `1.5px solid ${C.border}`, borderRadius: 12, fontSize: 14, color: C.muted, lineHeight: 1.8 }}>
-                <strong style={{ color: C.pink }}>環境対応力：</strong>ミシン持ち込み困難時は手縫い中心内容に切り替え等、貴施設環境に完全対応。
-              </div>
-            </R>
+            <R d={0.4}><div style={{ padding: "18px 24px", background: "linear-gradient(135deg,#fff0ee,#fce8f3)", border: `1.5px solid ${C.border}`, borderRadius: 12, fontSize: 14, color: C.muted, lineHeight: 1.8 }}>
+              <strong style={{ color: C.pink }}>環境対応力：</strong>ミシン持ち込み困難時は手縫い中心内容に切り替え等、貴施設環境に完全対応。
+            </div></R>
           </div>
-        </Section>
+        </CSection>
 
         {/* RESULTS */}
-        <Section id="results" bg={C.white}>
+        <CSection id="results" bg={C.white}>
           <div style={W}>
             <H sub="TRACK RECORD">多数の施設様から高評価</H>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 24 }}>
@@ -307,10 +327,10 @@ function CustomerView() {
               ))}
             </div>
           </div>
-        </Section>
+        </CSection>
 
         {/* FAQ */}
-        <Section id="faq" bg={C.bgAlt}>
+        <CSection id="faq" bg={C.bgAlt}>
           <div style={{ maxWidth: 800, margin: "0 auto", padding: "0 24px" }}>
             <H sub="FAQ">よくあるご質問</H>
             <QAItem q="ミシンの持ち込みは必要ですか？" a="ミシン必要な内容時は持ち込み可。手縫い中心内容への切り替えも可能です。貴施設環境に合わせて柔軟に対応いたします。" delay={0} />
@@ -321,7 +341,7 @@ function CustomerView() {
             <QAItem q="単発での依頼はできますか？" a="可能ですが、継続性が生まれやすい定期パッケージをお勧めしております。" delay={0.25} />
             <QAItem q="高齢の方でも参加できますか？" a="はい、負担の少ない内容に調整できますのでご安心ください。" delay={0.3} />
           </div>
-        </Section>
+        </CSection>
 
         {/* PRICING */}
         <section id="pricing" style={{ background: `linear-gradient(135deg,${C.rose},${C.pink})`, padding: "88px 24px" }}>
@@ -345,9 +365,9 @@ function CustomerView() {
               <div style={{ background: "#fff", borderRadius: 20, padding: "40px", textAlign: "center" }}>
                 <div style={{ fontFamily: "'Noto Serif JP',serif", fontSize: 20, fontWeight: 700, color: C.text, marginBottom: 12 }}>まずはお気軽にご相談ください</div>
                 <p style={{ fontSize: 15, color: C.muted, lineHeight: 2, marginBottom: 28 }}>貴施設のご状況をお伺いし、最適なプランをご提案いたします。</p>
-                <a href="mailto:info@aim-rose.co.jp" style={{ display: "inline-block", padding: "16px 48px", background: `linear-gradient(135deg,${C.rose},${C.pink})`, color: "#fff", borderRadius: 50, textDecoration: "none", fontWeight: 600, fontSize: 16, boxShadow: `0 8px 32px ${C.rose}40`, transition: "transform .2s,box-shadow .2s" }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = ""; }}>
+                <a href="mailto:info@aim-rose.co.jp" style={{ display: "inline-block", padding: "16px 48px", background: `linear-gradient(135deg,${C.rose},${C.pink})`, color: "#fff", borderRadius: 50, textDecoration: "none", fontWeight: 600, fontSize: 16, boxShadow: `0 8px 32px ${C.rose}40`, transition: "transform .2s" }}
+                  onMouseEnter={e => e.currentTarget.style.transform = "translateY(-3px)"}
+                  onMouseLeave={e => e.currentTarget.style.transform = ""}>
                   お問い合わせ・無料相談 →
                 </a>
                 <div style={{ marginTop: 20, fontSize: 13, color: C.muted }}>株式会社aim-rose</div>
@@ -362,156 +382,184 @@ function CustomerView() {
 }
 
 // ════════════════════════════════════════════════════════════════════
-// PRESENTER VIEW
+// PRESENTER SECTIONS
 // ════════════════════════════════════════════════════════════════════
 const P_SECTIONS = [
-  { id: "p-intro",    label: "イントロ" },
-  { id: "p-ice",      label: "アイスブレイク" },
-  { id: "p-overview", label: "サービス概要" },
-  { id: "p-position", label: "ポジショニング" },
-  { id: "p-usp",      label: "USP" },
-  { id: "p-service",  label: "基本サービス" },
-  { id: "p-results",  label: "実績" },
-  { id: "p-hearing",  label: "ヒアリング" },
-  { id: "p-faq",      label: "Q&A" },
-  { id: "p-closing",  label: "クロージング" },
-  { id: "p-obj",      label: "切り返し" },
+  { id: "intro",    label: "イントロ",          script: "本日はお時間をいただきありがとうございます。\n株式会社aim roseの〇〇と申します。\n\n本日は、介護施設様や老人ホーム様向けにご提供している、洋裁教室の定期パッケージについてご紹介できればと思っております。\n\nご入居者様のレクリエーションや、日々の楽しみづくりにお役立ていただける内容になっておりますので、ぜひ気軽にお聞きいただければ幸いです。\nどうぞよろしくお願いいたします。" },
+  { id: "ice",      label: "アイスブレイク",    script: "●●様、最初に1点お伺いしてもよろしいでしょうか？\n先日は突然のお電話にも関わらず、ご興味をいただけた理由を先にお伺いしてもよろしいでしょうか？\n\n（相手の回答を受ける）\n\nありがとうございます。そういった背景からご興味をお持ちいただいたんですね。\n\nもしよろしければ、現在のレクリエーションやイベントのご状況について、少しお聞かせいただけますでしょうか。\nたとえば、入居者様に人気のある活動や、もう少し幅を広げたいと感じている部分など、どのあたりが課題になりやすいでしょうか。\n\nなるほど、ありがとうございます。\nお話を伺っていると、弊社のサービスがお役に立てる場面が多そうだと感じました。", target: null },
+  { id: "overview", label: "サービス概要",      script: "弊社では、介護施設様や老人ホーム様向けに、講師が施設へ伺い、洋裁を楽しんでいただく定期パッケージをご提供しています。\n\nミシンを使った簡単な制作や、手縫いでできる小物づくりなど、入居者様の負担にならない内容を中心に構成しています。\n\n講師は約10名在籍しており、現在は300〜350名ほどの生徒様に教室を提供している体制です。\n\n法人向けの定期パッケージでは、施設様の状況に合わせて月1回・半年・年間など柔軟に設計できます。" },
+  { id: "position", label: "ポジショニング",    script: "最近は、入居者様の楽しみづくりや、手先を動かす活動の重要性が改めて注目されています。\n\n特に、単発のイベントだけではなく、継続的に楽しめるプログラムを求められる施設様が増えている印象です。\n\nそういった中で、洋裁のように「完成物が残る」「達成感がある」「会話が生まれる」活動は、入居者様の満足度向上にもつながりやすいと考えております。" },
+  { id: "usp",      label: "USP 3点",          script: "御社にメリットがあるポイントを3つにまとめますね。\n\n一つ目は、入居者様の負担にならない内容設計です。\nミシンを使う場合でも講師がしっかりサポートし、手縫い中心の回もあるため、どなたでも安心してご参加いただけます。\n\n二つ目は、継続しやすいプログラム構成です。\n単発ではなく、月1回などの定期開催にすることで、入居者様の楽しみが増え、施設様としてもレクリエーションの計画が立てやすくなります。\n\n最後に、講師の対応力です。\n現在300名以上の生徒様を教えている講師陣が担当するため、参加人数やレベルに合わせて柔軟に進行できます。" },
+  { id: "service",  label: "基本サービス",      script: "法人向けの定期パッケージでは、まず施設様のご状況を伺い、参加人数・ご希望の内容・開催頻度などを確認したうえでプランを設計します。\n\n制作物はトートバッグや小物など、施設様のご希望に合わせて調整可能です。\n\nまた、ミシンの持ち込みが難しい場合は、手縫い中心の内容に切り替えるなど、施設様の環境に合わせて柔軟に対応しています。" },
+  { id: "results",  label: "実績紹介",          script: "これまで、介護施設様や地域のコミュニティ向けに多数の体験会や教室を実施してきました。\n\n特に、完成物が残る活動は入居者様からの満足度が高く、施設様からも「継続したい」というお声をいただくことが多いです。\n\nまた、個人向けの教室では300〜350名の生徒様が継続的に通われており、講師の指導力についても高い評価をいただいています。" },
+  { id: "hearing",  label: "ヒアリング",        script: "すいません、ここまで一方的にお話ししてしまいました。\nここからは御社の現状や、「ここが気になる」「少し深掘りしたい」と感じられた部分を伺えればと思っています。", target: null, bant: true },
+  { id: "faq",      label: "Q&A",              script: "Q1: ミシンの持ち込みは必要ですか？\n→ ミシンが必要な内容の場合は持ち込みも可能ですが、手縫い中心の内容に切り替えることもできます。\n\nQ2: 参加人数が多くても対応できますか？\n→ 内容調整・複数回開催等で対応可能です。詳細は二次商談で確認させていただきます。\n\nQ3: 材料費はどうなりますか？\n→ 制作内容によって変動しますので、二次商談で具体的にご説明いたします。\n\nQ4: どんな制作物ができますか？\n→ トートバッグや小物など、入居者様の負担にならない内容を中心にご提案しています。\n\nQ5: 講師の方はどんな方ですか？\n→ 現在300名以上の生徒様を教えている経験豊富な講師が担当いたします。\n\nQ6: 単発での依頼はできますか？\n→ 可能ですが、定期パッケージをおすすめしております。\n\nQ7: 高齢の方でも参加できますか？\n→ はい、負担の少ない内容に調整できますのでご安心ください。" },
+  { id: "pricing",  label: "料金",             script: "参加人数・開催頻度・制作内容により料金が変動するため、貴施設のご状況に合わせた個別お見積りで対応いたします。\n\n講師料・材料費・交通費・機材持込費（必要な場合のみ）で構成されています。\n\nまずはお気軽にご相談ください。" },
+  { id: "closing",  label: "クロージング",      script: "ありがとうございます。\nもしよろしければ、まずは御社の体制やご希望を伺いながら、最適なプランを具体化させていただければと思っています。\n\nたとえば「〇月〇日（〇曜日）」か「〇月〇日（〇曜日）」にお時間いただくことは可能でしょうか？\n\n▼ 日程決めステップ\n① 「午前と午後はどちらがご都合よろしいでしょうか」\n② 「●時と●時ではどちらがよろしいでしょうか」\n③ 「では、●月●日の●時でお時間を頂戴できればと思います」\n\n本日、私の方からのご案内は以上となりますが、何かご不明点はございますか？", target: null },
+  { id: "obj",      label: "切り返し",          script: null, target: null, objections: true },
 ];
 
-function ScriptBlock({ text }) {
-  return (
-    <div style={{ background: "#f0fff0", border: "1.5px solid #a0d4a0", borderRadius: 12, padding: "20px 24px", fontFamily: "'Noto Sans JP',sans-serif", fontSize: 14, lineHeight: 2.1, color: "#2a4a2a", whiteSpace: "pre-wrap", marginTop: 16 }}>
-      {text}
-    </div>
-  );
-}
+// Sections that map to a customer page section
+const CUSTOMER_MAP = {
+  intro: "intro", overview: "overview", position: "position",
+  usp: "usp", service: "service", results: "results",
+  faq: "faq", pricing: "pricing",
+};
 
-function BantItem({ label, q }) {
-  const [checked, setChecked] = useState(false);
-  return (
-    <div onClick={() => setChecked(c => !c)} style={{ padding: "16px 20px", borderRadius: 12, border: `1.5px solid ${checked ? C.rose + "80" : C.border}`, background: checked ? "#fff5f3" : C.white, cursor: "pointer", display: "flex", gap: 14, alignItems: "flex-start", transition: "all .3s", marginBottom: 12, userSelect: "none" }}>
-      <div style={{ width: 22, height: 22, borderRadius: 6, border: `2px solid ${checked ? C.rose : C.border}`, background: checked ? C.rose : "transparent", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: "#fff", transition: "all .3s" }}>{checked && "✓"}</div>
-      <div>
-        <div style={{ fontSize: 11, color: C.pink, letterSpacing: "0.15em", marginBottom: 5, fontFamily: "'Noto Sans JP',sans-serif" }}>{label}</div>
-        <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.8 }}>{q}</div>
-      </div>
-    </div>
-  );
-}
+const OBJECTIONS = [
+  { label: "検討したい", response: "ありがとうございます。検討されたいというお気持ちはよく理解できます。判断材料を揃える意味でも、具体的な内容は講師責任者との打ち合わせでないと正確にお伝えできない部分が多いです。三十分ほどお時間をいただければ、御社の施設に合わせた具体的なプランをご提示できますので、軽く次回のお時間だけいただければと思います。" },
+  { label: "見送りたい", response: "率直にお話しいただきありがとうございます。無理に進める必要はないと思います。ただ、定期パッケージがどれくらいお役に立てるかは、詳細を確認してみないと判断が難しい部分があります。情報整理の場として、次回三十分ほどお時間をいただければ、御社にとってメリットがあるかどうかを一緒に確認できればと思います。" },
+  { label: "会社の確認が必要", response: "承知いたしました。社内でのご確認は大切ですし、慎重に進められるのは良いことだと思います。具体的な制作内容や進め方は二次商談で詳しくご説明できます。次回は御社に合わせた具体例をご用意いたしますので、三十分ほどお時間をいただければと思います。" },
+];
 
-function ObjectionCard({ label, response }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div onClick={() => setOpen(o => !o)} style={{ borderRadius: 14, border: `1.5px solid ${open ? C.rose + "80" : C.border}`, background: open ? "#fff5f3" : C.white, cursor: "pointer", overflow: "hidden", transition: "all .3s", marginBottom: 14, userSelect: "none" }}>
-      <div style={{ padding: "18px 22px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontFamily: "'Noto Serif JP',serif", fontSize: 15, color: C.text, fontWeight: 700 }}>「{label}」と言われたら</span>
-        <span style={{ color: C.pink, fontSize: 12 }}>{open ? "▲ 閉じる" : "▼ 切り返しを見る"}</span>
-      </div>
-      <div style={{ maxHeight: open ? 400 : 0, overflow: "hidden", transition: "max-height .4s ease" }}>
-        <div style={{ padding: "0 22px 22px", borderTop: `1px solid ${C.border}` }}>
-          <div style={{ marginTop: 16, padding: "16px 18px", background: "#f0fff0", borderRadius: 10, borderLeft: `3px solid #a0d4a0` }}>
-            <p style={{ fontSize: 14, color: "#2a4a2a", lineHeight: 2, margin: 0 }}>{response}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+const BANT = [
+  { label: "BUDGET — 予算", q: "外部講師を招く際のご予算感はどれくらいを想定されていますでしょうか。" },
+  { label: "AUTHORITY — 決裁者", q: "最終的なご判断はどなたが担当される形になりますでしょうか。" },
+  { label: "NEED — 必要性", q: "今回のような定期パッケージについて、御社としてどの程度の必要性を感じていらっしゃいますか。" },
+  { label: "TIMELINE — 時期", q: "もし進める場合は、いつ頃からの導入をお考えでしょうか。" },
+];
 
-function PSection({ id, label, children }) {
-  return (
-    <section id={id} style={{ padding: "56px 0", borderBottom: `1px solid ${C.border}` }}>
-      <div style={{ maxWidth: 860, margin: "0 auto", padding: "0 24px" }}>
-        <div style={{ fontSize: 11, color: C.pink, letterSpacing: "0.25em", fontFamily: "'Noto Sans JP',sans-serif", marginBottom: 16 }}>▶ {label}</div>
-        {children}
-      </div>
-    </section>
-  );
-}
-
+// ════════════════════════════════════════════════════════════════════
+// PRESENTER VIEW
+// ════════════════════════════════════════════════════════════════════
 function PresenterView() {
-  const active = useActiveSection(P_SECTIONS.map(s => s.id));
-  const [navOpen, setNavOpen] = useState(false);
+  const [current, setCurrent] = useState(0);
+  const [bantChecked, setBantChecked] = useState([false, false, false, false]);
+  const [objOpen, setObjOpen] = useState(null);
+  const sendSync = useSyncSend();
+
+  const total = P_SECTIONS.length;
+  const sec = P_SECTIONS[current];
+
+  const go = (idx) => {
+    if (idx < 0 || idx >= total) return;
+    setCurrent(idx);
+  };
+
+  // currentが変わるたびに顧客画面へ同期送信（初期表示も含む）
+  useEffect(() => {
+    const customerSection = CUSTOMER_MAP[P_SECTIONS[current].id];
+    if (customerSection) sendSync(customerSection);
+  }, [current]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") go(current + 1);
+      if (e.key === "ArrowLeft"  || e.key === "ArrowUp")   go(current - 1);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [current]);
+
+  const PG = { fontFamily: "'Noto Sans JP',sans-serif", fontSize: 14, color: C.muted };
 
   return (
-    <>
+    <div style={{ background: C.bg, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+
       {/* Top bar */}
-      <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 300, background: "#f0fff0", borderBottom: "1.5px solid #a0d4a0", padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ background: "#f0fff0", borderBottom: "1.5px solid #a0d4a0", padding: "10px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 16 }}>🎯</span>
-          <span style={{ fontFamily: "'Noto Sans JP',sans-serif", fontSize: 13, color: "#2a6a2a", fontWeight: 700, letterSpacing: "0.08em" }}>PRESENTER MODE — 営業担当専用</span>
+          <span>🎯</span>
+          <span style={{ ...PG, color: "#2a6a2a", fontWeight: 700, letterSpacing: "0.08em" }}>PRESENTER MODE — 営業担当専用</span>
         </div>
-        <a href="/" style={{ fontSize: 12, color: C.muted, textDecoration: "none", border: `1px solid ${C.border}`, padding: "6px 14px", borderRadius: 50, fontFamily: "'Noto Sans JP',sans-serif", background: C.white }}>顧客画面へ →</a>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <span style={{ ...PG, fontSize: 12 }}>{current + 1} / {total}</span>
+          <a href="/" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: C.muted, textDecoration: "none", border: `1px solid ${C.border}`, padding: "6px 14px", borderRadius: 50, background: C.white }}>顧客画面 →</a>
+        </div>
       </div>
 
-      {/* Side nav */}
-      <nav style={{ position: "fixed", top: 44, left: 0, bottom: 0, width: navOpen ? 200 : 44, background: C.white, borderRight: `1px solid ${C.border}`, zIndex: 200, transition: "width .3s", overflow: "hidden" }}>
-        <button onClick={() => setNavOpen(o => !o)} style={{ width: "100%", padding: "12px", background: "none", border: "none", cursor: "pointer", color: C.pink, fontSize: 16, textAlign: "left" }}>{navOpen ? "←" : "≡"}</button>
+      {/* Progress bar */}
+      <div style={{ height: 4, background: C.border, flexShrink: 0 }}>
+        <div style={{ height: "100%", background: `linear-gradient(90deg,${C.rose},${C.pink})`, width: `${((current + 1) / total) * 100}%`, transition: "width .3s ease" }} />
+      </div>
+
+      {/* Section tabs */}
+      <div style={{ background: C.white, borderBottom: `1px solid ${C.border}`, padding: "0 24px", overflowX: "auto", flexShrink: 0, display: "flex" }}>
         {P_SECTIONS.map((s, i) => (
-          <a key={s.id} href={`#${s.id}`} style={{ display: "block", padding: "9px 14px", color: active === s.id ? C.pink : C.muted, fontSize: 11, textDecoration: "none", borderLeft: `2px solid ${active === s.id ? C.pink : "transparent"}`, whiteSpace: "nowrap", fontFamily: "'Noto Sans JP',sans-serif", background: active === s.id ? "#fff0ee" : "transparent" }}>
-            <span style={{ opacity: 0.4, marginRight: 6 }}>{String(i + 1).padStart(2, "0")}</span>
-            {navOpen && s.label}
-          </a>
+          <button key={s.id} onClick={() => go(i)} style={{ padding: "12px 16px", background: "none", border: "none", borderBottom: `2px solid ${i === current ? C.rose : "transparent"}`, cursor: "pointer", whiteSpace: "nowrap", fontFamily: "'Noto Sans JP',sans-serif", fontSize: 12, color: i === current ? C.pink : C.muted, fontWeight: i === current ? 700 : 400, transition: "all .2s", flexShrink: 0 }}>
+            <span style={{ opacity: 0.5, marginRight: 5 }}>{String(i + 1).padStart(2, "0")}</span>
+            {s.label}
+          </button>
         ))}
-      </nav>
+      </div>
 
-      <main style={{ marginLeft: 44, marginTop: 44, background: C.bg, minHeight: "100vh", fontFamily: "'Noto Sans JP',sans-serif" }}>
+      {/* Main content */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "32px 24px" }}>
+        <div style={{ maxWidth: 820, margin: "0 auto" }}>
 
-        <PSection id="p-intro" label="イントロ">
-          <ScriptBlock text={`本日はお時間をいただきありがとうございます。\n株式会社aim roseの〇〇と申します。\n\n本日は、介護施設様や老人ホーム様向けにご提供している、洋裁教室の定期パッケージについてご紹介できればと思っております。\n\nご入居者様のレクリエーションや、日々の楽しみづくりにお役立ていただける内容になっておりますので、ぜひ気軽にお聞きいただければ幸いです。\nどうぞよろしくお願いいたします。`} />
-        </PSection>
-
-        <PSection id="p-ice" label="アイスブレイク・現状把握">
-          <ScriptBlock text={`●●様、最初に1点お伺いしてもよろしいでしょうか？\n先日は突然のお電話にも関わらず、ご興味をいただけた理由を先にお伺いしてもよろしいでしょうか？\n\n（相手の回答を受ける）\n\nありがとうございます。そういった背景からご興味をお持ちいただいたんですね。\n\nもしよろしければ、現在のレクリエーションやイベントのご状況について、少しお聞かせいただけますでしょうか。\nたとえば、入居者様に人気のある活動や、もう少し幅を広げたいと感じている部分など、どのあたりが課題になりやすいでしょうか。\n\nなるほど、ありがとうございます。\nお話を伺っていると、弊社のサービスがお役に立てる場面が多そうだと感じました。`} />
-        </PSection>
-
-        <PSection id="p-overview" label="サービス概要">
-          <ScriptBlock text={`弊社では、介護施設様や老人ホーム様向けに、講師が施設へ伺い、洋裁を楽しんでいただく定期パッケージをご提供しています。\n\nミシンを使った簡単な制作や、手縫いでできる小物づくりなど、入居者様の負担にならない内容を中心に構成しています。\n\n講師は約10名在籍しており、現在は300〜350名ほどの生徒様に教室を提供している体制です。\n\n法人向けの定期パッケージでは、施設様の状況に合わせて月1回・半年・年間など柔軟に設計できます。`} />
-        </PSection>
-
-        <PSection id="p-position" label="ポジショニング">
-          <ScriptBlock text={`最近は、入居者様の楽しみづくりや、手先を動かす活動の重要性が改めて注目されています。\n\n特に、単発のイベントだけではなく、継続的に楽しめるプログラムを求められる施設様が増えている印象です。\n\nそういった中で、洋裁のように「完成物が残る」「達成感がある」「会話が生まれる」活動は、入居者様の満足度向上にもつながりやすいと考えております。`} />
-        </PSection>
-
-        <PSection id="p-usp" label="USP 3つのポイント">
-          <ScriptBlock text={`御社にメリットがあるポイントを3つにまとめますね。\n\n一つ目は、入居者様の負担にならない内容設計です。\nミシンを使う場合でも講師がしっかりサポートし、手縫い中心の回もあるため、どなたでも安心してご参加いただけます。\n\n二つ目は、継続しやすいプログラム構成です。\n単発ではなく、月1回などの定期開催にすることで、入居者様の楽しみが増え、施設様としてもレクリエーションの計画が立てやすくなります。\n\n最後に、講師の対応力です。\n現在300名以上の生徒様を教えている講師陣が担当するため、参加人数やレベルに合わせて柔軟に進行できます。`} />
-        </PSection>
-
-        <PSection id="p-service" label="基本サービス">
-          <ScriptBlock text={`法人向けの定期パッケージでは、まず施設様のご状況を伺い、参加人数・ご希望の内容・開催頻度などを確認したうえでプランを設計します。\n\n制作物はトートバッグや小物など、施設様のご希望に合わせて調整可能です。\n\nまた、ミシンの持ち込みが難しい場合は、手縫い中心の内容に切り替えるなど、施設様の環境に合わせて柔軟に対応しています。`} />
-        </PSection>
-
-        <PSection id="p-results" label="実績紹介">
-          <ScriptBlock text={`これまで、介護施設様や地域のコミュニティ向けに多数の体験会や教室を実施してきました。\n\n特に、完成物が残る活動は入居者様からの満足度が高く、施設様からも「継続したい」というお声をいただくことが多いです。\n\nまた、個人向けの教室では300〜350名の生徒様が継続的に通われており、講師の指導力についても高い評価をいただいています。`} />
-        </PSection>
-
-        <PSection id="p-hearing" label="ヒアリング・BANT確認">
-          <ScriptBlock text={`すいません、ここまで一方的にお話ししてしまいました。\nここからは御社の現状や、「ここが気になる」「少し深掘りしたい」と感じられた部分を伺えればと思っています。`} />
-          <div style={{ marginTop: 24 }}>
-            <div style={{ fontSize: 12, color: C.pink, letterSpacing: "0.15em", marginBottom: 14, fontFamily: "'Noto Sans JP',sans-serif" }}>BANT チェックリスト（確認済みでクリック）</div>
-            <BantItem label="BUDGET — 予算" q="外部講師を招く際のご予算感はどれくらいを想定されていますでしょうか。" />
-            <BantItem label="AUTHORITY — 決裁者" q="最終的なご判断はどなたが担当される形になりますでしょうか。" />
-            <BantItem label="NEED — 必要性" q="今回のような定期パッケージについて、御社としてどの程度の必要性を感じていらっしゃいますか。" />
-            <BantItem label="TIMELINE — 時期" q="もし進める場合は、いつ頃からの導入をお考えでしょうか。" />
+          {/* Section title */}
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 11, color: C.pink, letterSpacing: "0.2em", marginBottom: 8, fontFamily: "'Noto Sans JP',sans-serif" }}>
+              {CUSTOMER_MAP[sec.id] ? "🔗 顧客画面と連動" : "📋 カンペのみ（顧客画面は動かない）"}
+            </div>
+            <h2 style={{ fontFamily: "'Noto Serif JP',serif", fontSize: 24, fontWeight: 700, color: C.text }}>{sec.label}</h2>
           </div>
-        </PSection>
 
-        <PSection id="p-faq" label="想定Q&A">
-          <ScriptBlock text={`Q1: ミシンの持ち込みは必要ですか？\n→ ミシンが必要な内容の場合は持ち込みも可能ですが、手縫い中心の内容に切り替えることもできます。\n\nQ2: 参加人数が多くても対応できますか？\n→ 内容調整・複数回開催等で対応可能です。詳細は二次商談で確認させていただきます。\n\nQ3: 材料費はどうなりますか？\n→ 制作内容によって変動しますので、二次商談で具体的にご説明いたします。\n\nQ4: どんな制作物ができますか？\n→ トートバッグや小物など、入居者様の負担にならない内容を中心にご提案しています。\n\nQ5: 講師の方はどんな方ですか？\n→ 現在300名以上の生徒様を教えている経験豊富な講師が担当いたします。\n\nQ6: 単発での依頼はできますか？\n→ 可能ですが、定期パッケージをおすすめしております。\n\nQ7: 高齢の方でも参加できますか？\n→ はい、負担の少ない内容に調整できますのでご安心ください。`} />
-        </PSection>
+          {/* Script */}
+          {sec.script && (
+            <div style={{ background: "#f0fff0", border: "1.5px solid #a0d4a0", borderRadius: 14, padding: "22px 26px", fontFamily: "'Noto Sans JP',sans-serif", fontSize: 14, lineHeight: 2.2, color: "#2a4a2a", whiteSpace: "pre-wrap", marginBottom: 24 }}>
+              {sec.script}
+            </div>
+          )}
 
-        <PSection id="p-closing" label="クロージング・日程決め">
-          <ScriptBlock text={`ありがとうございます。\nもしよろしければ、まずは御社の体制やご希望を伺いながら、最適なプランを具体化させていただければと思っています。\n\nたとえば「〇月〇日（〇曜日）」か「〇月〇日（〇曜日）」にお時間いただくことは可能でしょうか？\n\n▼ 日程決めステップ\n① 「午前と午後はどちらがご都合よろしいでしょうか」\n② 「●時と●時ではどちらがよろしいでしょうか」\n③ 「では、●月●日の●時でお時間を頂戴できればと思いますのでよろしくお願いいたします」\n\n本日、私の方からのご案内は以上となりますが、何かご不明点はございますか？`} />
-        </PSection>
+          {/* BANT checklist */}
+          {sec.bant && (
+            <div>
+              <div style={{ fontSize: 12, color: C.pink, letterSpacing: "0.15em", marginBottom: 14, fontFamily: "'Noto Sans JP',sans-serif" }}>BANT チェックリスト</div>
+              {BANT.map((b, i) => (
+                <div key={i} onClick={() => setBantChecked(p => { const n = [...p]; n[i] = !n[i]; return n; })} style={{ padding: "14px 18px", borderRadius: 12, border: `1.5px solid ${bantChecked[i] ? C.rose + "80" : C.border}`, background: bantChecked[i] ? "#fff5f3" : C.white, cursor: "pointer", display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 10, userSelect: "none", transition: "all .2s" }}>
+                  <div style={{ width: 20, height: 20, borderRadius: 5, border: `2px solid ${bantChecked[i] ? C.rose : C.border}`, background: bantChecked[i] ? C.rose : "transparent", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#fff", transition: "all .2s" }}>{bantChecked[i] && "✓"}</div>
+                  <div>
+                    <div style={{ fontSize: 11, color: C.pink, letterSpacing: "0.1em", marginBottom: 4 }}>{b.label}</div>
+                    <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.7 }}>{b.q}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
-        <PSection id="p-obj" label="切り返し">
-          <ObjectionCard label="検討したい" response={"ありがとうございます。検討されたいというお気持ちはよく理解できます。判断材料を揃える意味でも、具体的な内容は講師責任者との打ち合わせでないと正確にお伝えできない部分が多いです。三十分ほどお時間をいただければ、御社の施設に合わせた具体的なプランをご提示できますので、軽く次回のお時間だけいただければと思います。"} />
-          <ObjectionCard label="見送りたい" response={"率直にお話しいただきありがとうございます。無理に進める必要はないと思います。ただ、定期パッケージがどれくらいお役に立てるかは、詳細を確認してみないと判断が難しい部分があります。情報整理の場として、次回三十分ほどお時間をいただければ、御社にとってメリットがあるかどうかを一緒に確認できればと思います。"} />
-          <ObjectionCard label="会社の確認が必要" response={"承知いたしました。社内でのご確認は大切ですし、慎重に進められるのは良いことだと思います。具体的な制作内容や進め方は二次商談で詳しくご説明できます。次回は御社に合わせた具体例をご用意いたしますので、三十分ほどお時間をいただければと思います。"} />
-        </PSection>
+          {/* Objections */}
+          {sec.objections && (
+            <div>
+              <div style={{ fontSize: 12, color: C.pink, letterSpacing: "0.15em", marginBottom: 14, fontFamily: "'Noto Sans JP',sans-serif" }}>切り返しトーク</div>
+              {OBJECTIONS.map((obj, i) => (
+                <div key={i} onClick={() => setObjOpen(objOpen === i ? null : i)} style={{ borderRadius: 14, border: `1.5px solid ${objOpen === i ? C.rose + "80" : C.border}`, background: objOpen === i ? "#fff5f3" : C.white, cursor: "pointer", overflow: "hidden", marginBottom: 12, transition: "all .2s" }}>
+                  <div style={{ padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontFamily: "'Noto Serif JP',serif", fontSize: 15, color: C.text, fontWeight: 700 }}>「{obj.label}」と言われたら</span>
+                    <span style={{ color: C.pink, fontSize: 12 }}>{objOpen === i ? "▲" : "▼"}</span>
+                  </div>
+                  <div style={{ maxHeight: objOpen === i ? 300 : 0, overflow: "hidden", transition: "max-height .3s ease" }}>
+                    <div style={{ padding: "0 20px 20px", borderTop: `1px solid ${C.border}` }}>
+                      <div style={{ marginTop: 14, padding: "14px 18px", background: "#f0fff0", borderRadius: 10, borderLeft: "3px solid #a0d4a0", fontSize: 13, color: "#2a4a2a", lineHeight: 2 }}>{obj.response}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
-      </main>
-    </>
+        </div>
+      </div>
+
+      {/* Bottom nav */}
+      <div style={{ background: C.white, borderTop: `1px solid ${C.border}`, padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+        <button onClick={() => go(current - 1)} disabled={current === 0} style={{ padding: "12px 28px", borderRadius: 50, border: `1.5px solid ${C.border}`, background: C.white, cursor: current === 0 ? "not-allowed" : "pointer", fontFamily: "'Noto Sans JP',sans-serif", fontSize: 14, color: current === 0 ? C.border : C.muted, transition: "all .2s" }}>
+          ← 前へ
+        </button>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ ...PG, fontSize: 12, marginBottom: 4 }}>← → キーでも操作できます</div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {P_SECTIONS.map((_, i) => (
+              <div key={i} onClick={() => go(i)} style={{ width: i === current ? 20 : 8, height: 8, borderRadius: 4, background: i === current ? C.rose : C.border, cursor: "pointer", transition: "all .3s" }} />
+            ))}
+          </div>
+        </div>
+        <button onClick={() => go(current + 1)} disabled={current === total - 1} style={{ padding: "12px 28px", borderRadius: 50, border: "none", background: current === total - 1 ? C.border : `linear-gradient(135deg,${C.rose},${C.pink})`, cursor: current === total - 1 ? "not-allowed" : "pointer", fontFamily: "'Noto Sans JP',sans-serif", fontSize: 14, color: "#fff", fontWeight: 500, transition: "all .2s" }}>
+          次へ →
+        </button>
+      </div>
+    </div>
   );
 }
 
