@@ -344,8 +344,7 @@ function CustomerView() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 20 }}>
               {[
                 { src: "/works/work1.png", label: "眼鏡ケース", desc: "和柄生地を使ったオリジナル眼鏡ケース。マグネットボタン付き。" },
-                { src: "/works/work2.png", label: "巾着袋（閉じた状態）", desc: "リボン結びが華やかな巾着袋。プレゼントにも喜ばれています。" },
-                { src: "/works/work3.png", label: "巾着袋（開いた状態）", desc: "内側まで丁寧な仕上がり。使いやすさにもこだわった設計です。" },
+                { src: "/works/work2.png", label: "巾着袋", desc: "リボン結びが華やかな巾着袋。プレゼントにも喜ばれています。" },
               ].map((item, i) => (
                 <R key={item.label} d={i * 0.1}>
                   <div style={{ borderRadius: 18, overflow: "hidden", border: `1.5px solid ${C.border}`, background: C.white, boxShadow: "0 4px 24px #e8847a0e" }}>
