@@ -229,7 +229,7 @@ function CustomerView() {
               ))}
             </div>
             <R d={0.35}><div style={{ padding: "20px 28px", background: "linear-gradient(135deg,#fff0ee,#fce8f3)", border: `1.5px solid ${C.border}`, borderRadius: 14, fontSize: 14, color: C.muted, lineHeight: 1.9 }}>
-              <strong style={{ color: C.pink }}>環境対応力：</strong>ミシン持ち込みが困難な場合は手縫い中心の内容に切り替え可能。簡単制作〜小物づくりまで、ご入居者様の負担にならない内容構成。
+              <strong style={{ color: C.pink }}>環境対応力：</strong>ミシン環境のない場合は手縫い中心の内容に切り替え可能。簡単制作〜小物づくりまで、ご入居者様の負担にならない内容構成。
             </div></R>
           </div>
         </CSection>
@@ -293,7 +293,7 @@ function CustomerView() {
               </div>
             </Card></R>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 16, marginBottom: 24 }}>
-              {[{ n: "1", title: "ヒアリング", body: "参加人数・ご希望内容・開催頻度を確認し、プランを設計します。", d: 0 }, { n: "2", title: "プラン設計", body: "施設環境に合わせた内容調整。ミシン不可の場合も完全対応。", d: 0.15 }, { n: "3", title: "定期開催", body: "継続的な洋裁教室を実施。月1回〜、施設様のペースで。", d: 0.3 }].map(s => (
+              {[{ n: "1", title: "ヒアリング", body: "参加人数・ご希望内容・開催頻度を確認し、プランを設計します。", d: 0 }, { n: "2", title: "プラン設計", body: "施設環境に合わせた内容調整。ミシン環境のない場合も完全対応。", d: 0.15 }, { n: "3", title: "定期開催", body: "継続的な洋裁教室を実施。月1回〜、施設様のペースで。", d: 0.3 }].map(s => (
                 <R key={s.n} d={s.d}><Card style={{ textAlign: "center", position: "relative" }}>
                   <div style={{ position: "absolute", top: 14, right: 18, fontFamily: "'Playfair Display',serif", fontSize: 40, fontWeight: 900, color: `${C.rose}20` }}>{s.n}</div>
                   <div style={{ fontFamily: "'Noto Serif JP',serif", fontWeight: 700, fontSize: 17, color: C.text, marginBottom: 10 }}>{s.title}</div>
@@ -365,7 +365,7 @@ function CustomerView() {
               <div style={{ background: "#fff", borderRadius: 20, padding: "40px", textAlign: "center" }}>
                 <div style={{ fontFamily: "'Noto Serif JP',serif", fontSize: 20, fontWeight: 700, color: C.text, marginBottom: 12 }}>まずはお気軽にご相談ください</div>
                 <p style={{ fontSize: 15, color: C.muted, lineHeight: 2, marginBottom: 28 }}>貴施設のご状況をお伺いし、最適なプランをご提案いたします。</p>
-                <a href="mailto:info@aim-rose.co.jp" style={{ display: "inline-block", padding: "16px 48px", background: `linear-gradient(135deg,${C.rose},${C.pink})`, color: "#fff", borderRadius: 50, textDecoration: "none", fontWeight: 600, fontSize: 16, boxShadow: `0 8px 32px ${C.rose}40`, transition: "transform .2s" }}
+                <a href="mailto:aimrose.dm@gmail.com" style={{ display: "inline-block", padding: "16px 48px", background: `linear-gradient(135deg,${C.rose},${C.pink})`, color: "#fff", borderRadius: 50, textDecoration: "none", fontWeight: 600, fontSize: 16, boxShadow: `0 8px 32px ${C.rose}40`, transition: "transform .2s" }}
                   onMouseEnter={e => e.currentTarget.style.transform = "translateY(-3px)"}
                   onMouseLeave={e => e.currentTarget.style.transform = ""}>
                   お問い合わせ・無料相談 →
@@ -390,7 +390,7 @@ const P_SECTIONS = [
   { id: "overview", label: "サービス概要",      script: "弊社では、介護施設様や老人ホーム様向けに、講師が施設へ伺い、洋裁を楽しんでいただく定期パッケージをご提供しています。\n\nミシンを使った簡単な制作や、手縫いでできる小物づくりなど、入居者様の負担にならない内容を中心に構成しています。\n\n講師は約10名在籍しており、現在は300〜350名ほどの生徒様に教室を提供している体制です。\n\n法人向けの定期パッケージでは、施設様の状況に合わせて月1回・半年・年間など柔軟に設計できます。" },
   { id: "position", label: "ポジショニング",    script: "最近は、入居者様の楽しみづくりや、手先を動かす活動の重要性が改めて注目されています。\n\n特に、単発のイベントだけではなく、継続的に楽しめるプログラムを求められる施設様が増えている印象です。\n\nそういった中で、洋裁のように「完成物が残る」「達成感がある」「会話が生まれる」活動は、入居者様の満足度向上にもつながりやすいと考えております。" },
   { id: "usp",      label: "USP 3点",          script: "御社にメリットがあるポイントを3つにまとめますね。\n\n一つ目は、入居者様の負担にならない内容設計です。\nミシンを使う場合でも講師がしっかりサポートし、手縫い中心の回もあるため、どなたでも安心してご参加いただけます。\n\n二つ目は、継続しやすいプログラム構成です。\n単発ではなく、月1回などの定期開催にすることで、入居者様の楽しみが増え、施設様としてもレクリエーションの計画が立てやすくなります。\n\n最後に、講師の対応力です。\n現在300名以上の生徒様を教えている講師陣が担当するため、参加人数やレベルに合わせて柔軟に進行できます。" },
-  { id: "service",  label: "基本サービス",      script: "法人向けの定期パッケージでは、まず施設様のご状況を伺い、参加人数・ご希望の内容・開催頻度などを確認したうえでプランを設計します。\n\n制作物はトートバッグや小物など、施設様のご希望に合わせて調整可能です。\n\nまた、ミシンの持ち込みが難しい場合は、手縫い中心の内容に切り替えるなど、施設様の環境に合わせて柔軟に対応しています。" },
+  { id: "service",  label: "基本サービス",      script: "法人向けの定期パッケージでは、まず施設様のご状況を伺い、参加人数・ご希望の内容・開催頻度などを確認したうえでプランを設計します。\n\n制作物はトートバッグや小物など、施設様のご希望に合わせて調整可能です。\n\nまた、ミシン環境のない場合は、手縫い中心の内容に切り替えるなど、施設様の環境に合わせて柔軟に対応しています。" },
   { id: "results",  label: "実績紹介",          script: "これまで、介護施設様や地域のコミュニティ向けに多数の体験会や教室を実施してきました。\n\n特に、完成物が残る活動は入居者様からの満足度が高く、施設様からも「継続したい」というお声をいただくことが多いです。\n\nまた、個人向けの教室では300〜350名の生徒様が継続的に通われており、講師の指導力についても高い評価をいただいています。" },
   { id: "hearing",  label: "ヒアリング",        script: "すいません、ここまで一方的にお話ししてしまいました。\nここからは御社の現状や、「ここが気になる」「少し深掘りしたい」と感じられた部分を伺えればと思っています。", target: null, bant: true },
   { id: "faq",      label: "Q&A",              script: "Q1: ミシンの持ち込みは必要ですか？\n→ ミシンが必要な内容の場合は持ち込みも可能ですが、手縫い中心の内容に切り替えることもできます。\n\nQ2: 参加人数が多くても対応できますか？\n→ 内容調整・複数回開催等で対応可能です。詳細は二次商談で確認させていただきます。\n\nQ3: 材料費はどうなりますか？\n→ 制作内容によって変動しますので、二次商談で具体的にご説明いたします。\n\nQ4: どんな制作物ができますか？\n→ トートバッグや小物など、入居者様の負担にならない内容を中心にご提案しています。\n\nQ5: 講師の方はどんな方ですか？\n→ 現在300名以上の生徒様を教えている経験豊富な講師が担当いたします。\n\nQ6: 単発での依頼はできますか？\n→ 可能ですが、定期パッケージをおすすめしております。\n\nQ7: 高齢の方でも参加できますか？\n→ はい、負担の少ない内容に調整できますのでご安心ください。" },
