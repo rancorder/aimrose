@@ -302,7 +302,7 @@ function CustomerView() {
               ))}
             </div>
             <R d={0.4}><div style={{ padding: "18px 24px", background: "linear-gradient(135deg,#fff0ee,#fce8f3)", border: `1.5px solid ${C.border}`, borderRadius: 12, fontSize: 14, color: C.muted, lineHeight: 1.8 }}>
-              <strong style={{ color: C.pink }}>環境対応力：</strong>ミシン持ち込み困難時は手縫い中心内容に切り替え等、貴施設環境に完全対応。
+              <strong style={{ color: C.pink }}>環境対応力：</strong>ミシン環境のない場合は手縫い中心内容に切り替え等、貴施設環境に完全対応。
             </div></R>
           </div>
         </CSection>
