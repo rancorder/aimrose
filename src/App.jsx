@@ -143,6 +143,7 @@ const SECTIONS = [
   { id: "usp",      label: "USP 3点" },
   { id: "service",  label: "基本サービス" },
   { id: "results",  label: "実績紹介" },
+  { id: "works",    label: "作品ギャラリー" },
   { id: "faq",      label: "Q&A" },
   { id: "pricing",  label: "料金" },
 ];
@@ -326,6 +327,50 @@ function CustomerView() {
                 </R>
               ))}
             </div>
+          </div>
+        </CSection>
+
+
+        {/* WORKS GALLERY */}
+        <CSection id="works" bg={C.white}>
+          <div style={W}>
+            <H sub="GALLERY">制作物ギャラリー</H>
+            <R d={0.05}>
+              <p style={{ fontSize: 15, color: C.muted, lineHeight: 2, marginBottom: 40 }}>
+                実際にご入居者様が制作された作品の一例です。<br />
+                布の選び方・デザインはお一人おひとりの個性が光ります。
+              </p>
+            </R>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 20 }}>
+              {[
+                { src: "/works/work1.png", label: "眼鏡ケース", desc: "和柄生地を使ったオリジナル眼鏡ケース。マグネットボタン付き。" },
+                { src: "/works/work2.png", label: "巾着袋（閉じた状態）", desc: "リボン結びが華やかな巾着袋。プレゼントにも喜ばれています。" },
+                { src: "/works/work3.png", label: "巾着袋（開いた状態）", desc: "内側まで丁寧な仕上がり。使いやすさにもこだわった設計です。" },
+              ].map((item, i) => (
+                <R key={item.label} d={i * 0.1}>
+                  <div style={{ borderRadius: 18, overflow: "hidden", border: `1.5px solid ${C.border}`, background: C.white, boxShadow: "0 4px 24px #e8847a0e" }}>
+                    <div style={{ aspectRatio: "3/4", overflow: "hidden", background: C.bgAlt }}>
+                      <img
+                        src={item.src}
+                        alt={item.label}
+                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", transition: "transform .4s ease" }}
+                        onMouseEnter={e => e.currentTarget.style.transform = "scale(1.04)"}
+                        onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+                      />
+                    </div>
+                    <div style={{ padding: "20px 22px" }}>
+                      <div style={{ fontFamily: "'Noto Serif JP',serif", fontWeight: 700, fontSize: 16, color: C.text, marginBottom: 6 }}>{item.label}</div>
+                      <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.8 }}>{item.desc}</p>
+                    </div>
+                  </div>
+                </R>
+              ))}
+            </div>
+            <R d={0.4}>
+              <div style={{ marginTop: 32, padding: "18px 24px", background: "linear-gradient(135deg,#fff0ee,#fce8f3)", border: `1.5px solid ${C.border}`, borderRadius: 12, fontSize: 14, color: C.muted, lineHeight: 1.8, textAlign: "center" }}>
+                制作物は施設様・ご入居者様のご希望に合わせて自由にご相談いただけます。
+              </div>
+            </R>
           </div>
         </CSection>
 
