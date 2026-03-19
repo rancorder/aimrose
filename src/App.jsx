@@ -139,6 +139,7 @@ function QAItem({ q, a, delay }) {
 const SECTIONS = [
   { id: "intro",    label: "イントロ" },
   { id: "overview", label: "サービス概要" },
+  { id: "classroom", label: "教室風景" },
   { id: "position", label: "ポジショニング" },
   { id: "usp",      label: "USP 3点" },
   { id: "service",  label: "基本サービス" },
@@ -232,6 +233,45 @@ function CustomerView() {
             <R d={0.35}><div style={{ padding: "20px 28px", background: "linear-gradient(135deg,#fff0ee,#fce8f3)", border: `1.5px solid ${C.border}`, borderRadius: 14, fontSize: 14, color: C.muted, lineHeight: 1.9 }}>
               <strong style={{ color: C.pink }}>環境対応力：</strong>ミシン環境のない場合は手縫い中心の内容に切り替え可能。簡単制作〜小物づくりまで、ご入居者様の負担にならない内容構成。
             </div></R>
+          </div>
+        </CSection>
+
+
+        {/* CLASSROOM */}
+        <CSection id="classroom" bg={C.bgAlt}>
+          <div style={W}>
+            <H sub="CLASS SCENE">実際の教室風景</H>
+            <R d={0.05}>
+              <p style={{ fontSize: 15, color: C.muted, lineHeight: 2, marginBottom: 40 }}>
+                講師が丁寧に寄り添いながら、参加者の皆様と楽しい時間を共有しています。<br />
+                笑顔と会話が自然に生まれる、そんな教室です。
+              </p>
+            </R>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 16, marginBottom: 24 }}>
+              {[
+                { src: "/classroom/class1.jpg", label: "丁寧な指導", desc: "一人ひとりのペースに合わせて、講師が丁寧にご説明します。" },
+                { src: "/classroom/class2.jpg", label: "賑やかな教室", desc: "布を囲みながら自然に会話が弾みます。笑顔があふれる時間です。" },
+                { src: "/classroom/class3.jpg", label: "布選びのサポート", desc: "好みの布を一緒に選ぶところから楽しんでいただけます。" },
+              ].map((item, i) => (
+                <R key={item.label} d={i * 0.1}>
+                  <div style={{ borderRadius: 18, overflow: "hidden", border: `1.5px solid ${C.border}`, background: C.white, boxShadow: "0 4px 24px #e8847a0e" }}>
+                    <div style={{ aspectRatio: "4/3", overflow: "hidden", background: C.bgAlt }}>
+                      <img
+                        src={item.src}
+                        alt={item.label}
+                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", transition: "transform .4s ease" }}
+                        onMouseEnter={e => e.currentTarget.style.transform = "scale(1.04)"}
+                        onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+                      />
+                    </div>
+                    <div style={{ padding: "18px 22px" }}>
+                      <div style={{ fontFamily: "'Noto Serif JP',serif", fontWeight: 700, fontSize: 15, color: C.text, marginBottom: 6 }}>{item.label}</div>
+                      <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.8 }}>{item.desc}</p>
+                    </div>
+                  </div>
+                </R>
+              ))}
+            </div>
           </div>
         </CSection>
 
@@ -432,6 +472,7 @@ const P_SECTIONS = [
   { id: "intro",    label: "イントロ",          script: "本日はお時間をいただきありがとうございます。\n株式会社aim roseの〇〇と申します。\n\n本日は、介護施設様や老人ホーム様向けにご提供している、洋裁教室の定期パッケージについてご紹介できればと思っております。\n\nご入居者様のレクリエーションや、日々の楽しみづくりにお役立ていただける内容になっておりますので、ぜひ気軽にお聞きいただければ幸いです。\nどうぞよろしくお願いいたします。" },
   { id: "ice",      label: "アイスブレイク",    script: "●●様、最初に1点お伺いしてもよろしいでしょうか？\n先日は突然のお電話にも関わらず、ご興味をいただけた理由を先にお伺いしてもよろしいでしょうか？\n\n（相手の回答を受ける）\n\nありがとうございます。そういった背景からご興味をお持ちいただいたんですね。\n\nもしよろしければ、現在のレクリエーションやイベントのご状況について、少しお聞かせいただけますでしょうか。\nたとえば、入居者様に人気のある活動や、もう少し幅を広げたいと感じている部分など、どのあたりが課題になりやすいでしょうか。\n\nなるほど、ありがとうございます。\nお話を伺っていると、弊社のサービスがお役に立てる場面が多そうだと感じました。", target: null },
   { id: "overview", label: "サービス概要",      script: "弊社では、介護施設様や老人ホーム様向けに、講師が施設へ伺い、洋裁を楽しんでいただく定期パッケージをご提供しています。\n\nミシンを使った簡単な制作や、手縫いでできる小物づくりなど、入居者様の負担にならない内容を中心に構成しています。\n\n講師は約10名在籍しており、現在は300〜350名ほどの生徒様に教室を提供している体制です。\n\n法人向けの定期パッケージでは、施設様の状況に合わせて月1回・半年・年間など柔軟に設計できます。" },
+  { id: "classroom", label: "教室風景",      script: "実際の教室風景をご覧いただきます。\n\n講師が一人ひとりに寄り添いながら、丁寧に指導しております。\n\n布を囲みながら自然に会話が生まれ、参加者様同士の笑顔があふれる教室です。\n\n布選びから一緒に楽しんでいただけるのも、弊社の教室の特徴です。" },
   { id: "position", label: "ポジショニング",    script: "最近は、入居者様の楽しみづくりや、手先を動かす活動の重要性が改めて注目されています。\n\n特に、単発のイベントだけではなく、継続的に楽しめるプログラムを求められる施設様が増えている印象です。\n\nそういった中で、洋裁のように「完成物が残る」「達成感がある」「会話が生まれる」活動は、入居者様の満足度向上にもつながりやすいと考えております。" },
   { id: "usp",      label: "USP 3点",          script: "御社にメリットがあるポイントを3つにまとめますね。\n\n一つ目は、入居者様の負担にならない内容設計です。\nミシンを使う場合でも講師がしっかりサポートし、手縫い中心の回もあるため、どなたでも安心してご参加いただけます。\n\n二つ目は、継続しやすいプログラム構成です。\n単発ではなく、月1回などの定期開催にすることで、入居者様の楽しみが増え、施設様としてもレクリエーションの計画が立てやすくなります。\n\n最後に、講師の対応力です。\n現在300名以上の生徒様を教えている講師陣が担当するため、参加人数やレベルに合わせて柔軟に進行できます。" },
   { id: "service",  label: "基本サービス",      script: "法人向けの定期パッケージでは、まず施設様のご状況を伺い、参加人数・ご希望の内容・開催頻度などを確認したうえでプランを設計します。\n\n制作物はトートバッグや小物など、施設様のご希望に合わせて調整可能です。\n\nまた、ミシン環境のない場合は、手縫い中心の内容に切り替えるなど、施設様の環境に合わせて柔軟に対応しています。" },
@@ -446,7 +487,7 @@ const P_SECTIONS = [
 
 // Sections that map to a customer page section
 const CUSTOMER_MAP = {
-  intro: "intro", overview: "overview", position: "position",
+  intro: "intro", overview: "overview", classroom: "classroom", position: "position",
   usp: "usp", service: "service", results: "results",
   works: "works", faq: "faq", pricing: "pricing",
 };
