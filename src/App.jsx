@@ -428,33 +428,70 @@ function CustomerView() {
         </CSection>
 
         {/* PRICING */}
-        <section id="pricing" style={{ background: `linear-gradient(135deg,${C.rose},${C.pink})`, padding: "88px 24px" }}>
-          <div style={{ maxWidth: 860, margin: "0 auto" }}>
-            <R>
-              <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 12, letterSpacing: "0.25em", color: "rgba(255,255,255,0.7)", marginBottom: 10 }}>PRICING</div>
-              <h2 style={{ fontFamily: "'Noto Serif JP',serif", fontSize: "clamp(22px,3.5vw,34px)", fontWeight: 700, color: "#fff", lineHeight: 1.5, marginBottom: 16 }}>貴施設に最適なプランをご提案</h2>
-              <p style={{ fontSize: 15, color: "rgba(255,255,255,0.85)", lineHeight: 2, marginBottom: 40 }}>参加人数・開催頻度・制作内容により料金が変動するため、貴施設のご状況に合わせた個別お見積りで対応いたします。</p>
+        <section id="pricing" style={{ background: C.bg, padding: "88px 0" }}>
+          <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 24px" }}>
+            <H sub="PRICING">料金プラン</H>
+            <R d={0.05}>
+              <p style={{ fontSize: 15, color: C.muted, lineHeight: 2, marginBottom: 12 }}>
+                ※ 想定参加人数10名のプランです。人数が異なる場合はお気軽にご相談ください。
+              </p>
+              <p style={{ fontSize: 14, color: C.muted, lineHeight: 2, marginBottom: 40 }}>
+                料金には講師料・材料費・交通費が含まれます。機材持込費は必要な場合のみ別途発生します。
+              </p>
             </R>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 16, marginBottom: 40 }}>
-              {[{ item: "講師料", note: "開催回数・時間により設定" }, { item: "材料費", note: "制作物により変動" }, { item: "交通費", note: "施設までの実費" }, { item: "機材持込費", note: "必要な場合のみ" }].map((p, i) => (
-                <R key={p.item} d={i * 0.1}>
-                  <div style={{ background: "rgba(255,255,255,0.2)", backdropFilter: "blur(8px)", borderRadius: 16, padding: "22px 16px", textAlign: "center", border: "1px solid rgba(255,255,255,0.3)" }}>
-                    <div style={{ fontFamily: "'Noto Serif JP',serif", fontWeight: 700, fontSize: 16, color: "#fff", marginBottom: 6 }}>{p.item}</div>
-                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.75)" }}>{p.note}</div>
+
+            {/* Plan cards */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 20, marginBottom: 32 }}>
+              {[
+                { name: "お試しプラン", duration: "1回", price: "40,000", unit: "円", note: "まずはお試しで", highlight: false },
+                { name: "3ヶ月プラン", duration: "3ヶ月", price: "180,000", unit: "円", note: "月60,000円相当", highlight: false },
+                { name: "6ヶ月プラン", duration: "6ヶ月", price: "330,000", unit: "円", note: "月55,000円相当", highlight: true },
+                { name: "1年プラン", duration: "12ヶ月", price: "600,000", unit: "円", note: "月50,000円相当", highlight: false },
+              ].map((plan, i) => (
+                <R key={plan.name} d={i * 0.1}>
+                  <div style={{
+                    borderRadius: 20,
+                    border: plan.highlight ? `2px solid ${C.rose}` : `1.5px solid ${C.border}`,
+                    background: plan.highlight ? "linear-gradient(160deg,#fff0ee,#fce8f3)" : C.white,
+                    padding: "32px 20px",
+                    textAlign: "center",
+                    position: "relative",
+                    boxShadow: plan.highlight ? `0 8px 40px ${C.rose}20` : "0 4px 20px #e8847a08",
+                  }}>
+                    {plan.highlight && (
+                      <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: `linear-gradient(135deg,${C.rose},${C.pink})`, color: "#fff", fontSize: 11, fontWeight: 700, padding: "4px 16px", borderRadius: 50, whiteSpace: "nowrap", fontFamily: "'Noto Sans JP',sans-serif", letterSpacing: "0.08em" }}>
+                        人気プラン
+                      </div>
+                    )}
+                    <div style={{ fontFamily: "'Noto Sans JP',sans-serif", fontSize: 12, color: C.pink, letterSpacing: "0.12em", marginBottom: 10, fontWeight: 500 }}>{plan.name}</div>
+                    <div style={{ fontFamily: "'Noto Serif JP',serif", fontSize: 13, color: C.muted, marginBottom: 16 }}>{plan.duration}</div>
+                    <div style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(28px,4vw,38px)", fontWeight: 900, background: `linear-gradient(135deg,${C.rose},${C.pink})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", lineHeight: 1, marginBottom: 4 }}>
+                      ¥{plan.price}
+                    </div>
+                    <div style={{ fontSize: 12, color: C.muted, marginTop: 8 }}>{plan.note}</div>
                   </div>
                 </R>
               ))}
             </div>
-            <R d={0.3}>
-              <div style={{ background: "#fff", borderRadius: 20, padding: "40px", textAlign: "center" }}>
-                <div style={{ fontFamily: "'Noto Serif JP',serif", fontSize: 20, fontWeight: 700, color: C.text, marginBottom: 12 }}>まずはお気軽にご相談ください</div>
-                <p style={{ fontSize: 15, color: C.muted, lineHeight: 2, marginBottom: 28 }}>貴施設のご状況をお伺いし、最適なプランをご提案いたします。</p>
-                <a href="mailto:aimrose.dm@gmail.com" style={{ display: "inline-block", padding: "16px 48px", background: `linear-gradient(135deg,${C.rose},${C.pink})`, color: "#fff", borderRadius: 50, textDecoration: "none", fontWeight: 600, fontSize: 16, boxShadow: `0 8px 32px ${C.rose}40`, transition: "transform .2s" }}
+
+            {/* Additional note */}
+            <R d={0.4}>
+              <div style={{ padding: "20px 28px", background: "linear-gradient(135deg,#fff0ee,#fce8f3)", border: `1.5px solid ${C.border}`, borderRadius: 14, fontSize: 14, color: C.muted, lineHeight: 1.9, marginBottom: 40 }}>
+                <strong style={{ color: C.pink }}>人数追加・カスタマイズ：</strong>参加人数が10名を超える場合や、開催頻度・内容のご要望は、別途ご相談のうえ柔軟に対応いたします。
+              </div>
+            </R>
+
+            {/* CTA */}
+            <R d={0.5}>
+              <div style={{ background: `linear-gradient(135deg,${C.rose},${C.pink})`, borderRadius: 24, padding: "48px 40px", textAlign: "center" }}>
+                <div style={{ fontFamily: "'Noto Serif JP',serif", fontSize: 20, fontWeight: 700, color: "#fff", marginBottom: 12 }}>まずはお気軽にご相談ください</div>
+                <p style={{ fontSize: 15, color: "rgba(255,255,255,0.85)", lineHeight: 2, marginBottom: 28 }}>貴施設のご状況をお伺いし、最適なプランをご提案いたします。</p>
+                <a href="mailto:aimrose.dm@gmail.com" style={{ display: "inline-block", padding: "16px 48px", background: "#fff", color: C.pink, borderRadius: 50, textDecoration: "none", fontWeight: 700, fontSize: 16, boxShadow: "0 8px 32px rgba(0,0,0,0.15)", transition: "transform .2s" }}
                   onMouseEnter={e => e.currentTarget.style.transform = "translateY(-3px)"}
                   onMouseLeave={e => e.currentTarget.style.transform = ""}>
                   お問い合わせ・無料相談 →
                 </a>
-                <div style={{ marginTop: 20, fontSize: 13, color: C.muted }}>株式会社aim-rose</div>
+                <div style={{ marginTop: 20, fontSize: 13, color: "rgba(255,255,255,0.75)" }}>株式会社aim-rose｜aimrose.dm@gmail.com</div>
               </div>
             </R>
           </div>
@@ -480,7 +517,7 @@ const P_SECTIONS = [
   { id: "works",    label: "制作物ギャラリー",  script: "実際にご入居者様が制作された作品をご覧いただけます。\n\n眼鏡ケースや巾着袋など、和柄生地を使ったオリジナル作品です。\n布の選び方・デザインはお一人おひとりの個性が光ります。\n\n「こんなものが作れるの？」という驚きの声をよくいただきます。\n完成物が手元に残ることで、達成感と継続する楽しみが生まれます。" },
   { id: "hearing",  label: "ヒアリング",        script: "すいません、ここまで一方的にお話ししてしまいました。\nここからは御社の現状や、「ここが気になる」「少し深掘りしたい」と感じられた部分を伺えればと思っています。", target: null, bant: true },
   { id: "faq",      label: "Q&A",              script: "Q1: ミシンの持ち込みは必要ですか？\n→ ミシンが必要な内容の場合は持ち込みも可能ですが、手縫い中心の内容に切り替えることもできます。\n\nQ2: 参加人数が多くても対応できますか？\n→ 内容調整・複数回開催等で対応可能です。詳細は二次商談で確認させていただきます。\n\nQ3: 材料費はどうなりますか？\n→ 制作内容によって変動しますので、二次商談で具体的にご説明いたします。\n\nQ4: どんな制作物ができますか？\n→ トートバッグや小物など、入居者様の負担にならない内容を中心にご提案しています。\n\nQ5: 講師の方はどんな方ですか？\n→ 現在300名以上の生徒様を教えている経験豊富な講師が担当いたします。\n\nQ6: 単発での依頼はできますか？\n→ 可能ですが、定期パッケージをおすすめしております。\n\nQ7: 高齢の方でも参加できますか？\n→ はい、負担の少ない内容に調整できますのでご安心ください。" },
-  { id: "pricing",  label: "料金",             script: "参加人数・開催頻度・制作内容により料金が変動するため、貴施設のご状況に合わせた個別お見積りで対応いたします。\n\n講師料・材料費・交通費・機材持込費（必要な場合のみ）で構成されています。\n\nまずはお気軽にご相談ください。" },
+  { id: "pricing",  label: "料金",             script: "料金プランをご説明します。想定参加人数は10名のプランです。\n\nお試しプランが4万円。まず1回試していただけます。\n\n3ヶ月プランが18万円、月換算で6万円です。\n\n6ヶ月プランが33万円、月換算で5万5千円。一番人気のプランです。\n\n1年プランが60万円、月換算で5万円。最もお得なプランです。\n\n10名を超える場合や、開催頻度・内容のご要望は別途ご相談のうえ柔軟に対応いたします。\n\nまずはお気軽にご連絡ください。" },
   { id: "closing",  label: "クロージング",      script: "ありがとうございます。\nもしよろしければ、まずは御社の体制やご希望を伺いながら、最適なプランを具体化させていただければと思っています。\n\nたとえば「〇月〇日（〇曜日）」か「〇月〇日（〇曜日）」にお時間いただくことは可能でしょうか？\n\n▼ 日程決めステップ\n① 「午前と午後はどちらがご都合よろしいでしょうか」\n② 「●時と●時ではどちらがよろしいでしょうか」\n③ 「では、●月●日の●時でお時間を頂戴できればと思います」\n\n本日、私の方からのご案内は以上となりますが、何かご不明点はございますか？", target: null },
   { id: "obj",      label: "切り返し",          script: null, target: null, objections: true },
 ];
