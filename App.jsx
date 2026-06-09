@@ -842,14 +842,17 @@ function Sidebar({ active, visibleSections }) {
 }
 
 function CustomerView() {
-  const [activeTarget, setActiveTarget] = useState("nursing");
+  const [activeTarget, setActiveTarget] = useState(() => localStorage.getItem("aim-rose-target") || "nursing");
   const content = CONTENT[activeTarget];
   const visibleSections = content.visibleSections;
   const active = useActiveSection(visibleSections);
   const W = { maxWidth: 900, margin: "0 auto", padding: "0 24px" };
 
   useSyncReceive(({ target, sectionId }) => {
-    if (target && target !== activeTarget) setActiveTarget(target);
+    if (target && target !== activeTarget) {
+      localStorage.setItem("aim-rose-target", target);
+      setActiveTarget(target);
+    }
     setTimeout(() => {
       const el = document.getElementById(sectionId);
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1002,7 +1005,7 @@ function PresenterView() {
   const tc = TARGET_COLORS[activeTarget];
 
   const go = (idx) => { if (idx < 0 || idx >= total) return; setCurrent(idx); };
-  const changeTarget = (t) => { setActiveTarget(t); setCurrent(0); setBantChecked([false,false,false,false]); };
+  const changeTarget = (t) => { setActiveTarget(t); setCurrent(0); setBantChecked([false,false,false,false]); localStorage.setItem("aim-rose-target", t); };
 
   useEffect(() => {
     const cmap = CUSTOMER_MAPS[activeTarget];
@@ -1027,7 +1030,9 @@ function PresenterView() {
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}><span>🎯</span><span style={{ fontSize: 13, color: "#2a6a2a", fontWeight: 700 }}>PRESENTER MODE — 営業担当専用</span></div>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
           <span style={{ fontSize: 12, color: C.muted }}>{current + 1} / {total}</span>
-          <a href="/" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: C.muted, textDecoration: "none", border: `1px solid ${C.border}`, padding: "6px 14px", borderRadius: 50, background: C.white }}>顧客画面 →</a>
+          <a href="/" target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: "#fff", textDecoration: "none", padding: "8px 20px", borderRadius: 50, background: `linear-gradient(135deg,${C.rose},${C.pink})`, fontWeight: 700, boxShadow: `0 4px 16px ${C.rose}40`, letterSpacing: "0.04em", display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 15 }}>📺</span> 顧客画面を開く
+          </a>
         </div>
       </div>
       <div style={{ background: C.white, borderBottom: `1px solid ${C.border}`, padding: "12px 24px", display: "flex", gap: 10, flexShrink: 0, flexWrap: "wrap" }}>
