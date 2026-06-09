@@ -71,10 +71,31 @@ const CONTENT = {
   },
 
   kindergarten: {
-    visibleSections: ["intro","challenge","positioning","kinder_proposal","kinder_events","reassurance","strengths","service_range","flow","faq","pricing"],
-    heroSub: "幼稚園・保育園様向け",
-    heroTitle: ["裁縫体験を", "園の参加理由に"],
-    heroCatch: "先生の負担を増やさず、保護者に喜ばれる体験機会をつくる",
+    visibleSections: ["intro","challenge","positioning","ikupower","programs","kinder_proposal","kinder_events","reassurance","strengths","service_range","flow","faq","pricing"],
+    heroSub: "幼稚園・保育園様向け 知育プログラム",
+    heroTitle: ["“やってみたい！”を", "子どもの力に変える"],
+    heroCatch: "先生の負担を増やさず、子どもの「育つ力」と笑顔を引き出す知育プログラム",
+    positioningPre: "“裁縫教室”ではなく、",
+    positioningEm: "“子どもの力が育つ知育プログラム”",
+    positioningPost: "として導入できます。",
+    ikuIntro: "「園が何かを教える」のではなく、「園が “育つ体験” を届ける」。子どもの “やってみたい！” という気持ちを起点に、楽しみながら自然と力が育つよう設計しています。",
+    ikuPowers: [
+      { icon: "💡", title: "創造力・発想力", body: "自由な発想で「自分だけの作品」を生み出す力が育ちます。", accent: "#f0a93a" },
+      { icon: "🎨", title: "色彩感覚・表現力", body: "色や柄の組み合わせを楽しみながら、感性を育てます。", accent: "#e86fa0" },
+      { icon: "✋", title: "指先の発達", body: "切る・貼る・縫う動作を通して、手先の巧緻性を育てます。", accent: "#3aa98c" },
+      { icon: "🔍", title: "集中力", body: "夢中になって取り組むことで、自然と集中する力が身につきます。", accent: "#4a90d9" },
+      { icon: "❤️", title: "達成感・自己肯定感", body: "完成した作品を見て「できた！」という自信につながります。", accent: "#e8615a" },
+    ],
+    programsIntro: "年齢・季節・行事に合わせて、複数の知育プログラムからお選びいただけます。針を使う本格派から、はさみとのりだけの安心メニューまで。",
+    programs: [
+      { icon: "👗", name: "お洋服デザイナー", tag: "針・アイロン不要", age: "年少〜年長", body: "切って・貼って・自由にデザイン。世界にひとつだけのオリジナルコーデをつくる造形あそび。" },
+      { icon: "🧶", name: "ニット帽リメイク", tag: "子ども針にチャレンジ", age: "年中〜年長", body: "着なくなったセーターが帽子に変身。SDGsの心も育つ、本格リメイク体験。" },
+      { icon: "🎀", name: "オリジナル小物づくり", tag: "年齢に合わせて調整", age: "全年齢対応", body: "巾着・ワッペン・布小物など。行事やテーマに合わせて自由にアレンジできます。" },
+    ],
+    flyers: [
+      { src: "/flyers/clothing-designer.jpg", label: "お洋服デザイナープログラム", desc: "切って・貼って・自由にデザイン。針を使わず、年少さんから楽しめる造形あそび。" },
+      { src: "/flyers/knit-remake.jpg", label: "ニット帽リメイクプログラム", desc: "着なくなったセーターが、世界にひとつのニット帽に。子ども針でチャレンジする本格リメイク。" },
+    ],
     challenges: [
       { icon: "📅", text: "毎年似たような行事になってしまう" },
       { icon: "🤔", text: "保護者が参加しやすい企画を考えるのが難しい" },
@@ -210,13 +231,13 @@ const FLOW_STEPS = [
 // ═══════════════════════════════════════════════════════
 const CUSTOMER_MAPS = {
   nursing: { intro:"intro",overview:"overview",classroom:"classroom",position:"position",usp:"usp",service:"service",results:"results",works:"works",faq:"faq",pricing:"pricing" },
-  kindergarten: { intro:"intro",challenge:"challenge",positioning:"positioning",kinder_proposal:"kinder_proposal",kinder_events:"kinder_events",reassurance:"reassurance",strengths:"strengths",service_range:"service_range",flow:"flow",faq:"faq",pricing:"pricing" },
+  kindergarten: { intro:"intro",challenge:"challenge",positioning:"positioning",ikupower:"ikupower",programs:"programs",kinder_proposal:"kinder_proposal",kinder_events:"kinder_events",reassurance:"reassurance",strengths:"strengths",service_range:"service_range",flow:"flow",faq:"faq",pricing:"pricing" },
   event: { intro:"intro",challenge:"challenge",positioning:"positioning",event_proposal:"event_proposal",event_cases:"event_cases",strengths:"strengths",service_range:"service_range",flow:"flow",faq:"faq",pricing:"pricing" },
 };
 
 const ALL_SECTION_LABELS = {
   intro:"イントロ",overview:"サービス概要",classroom:"教室風景",position:"ポジショニング",usp:"USP",service:"基本サービス",results:"実績",works:"作品",
-  challenge:"課題",positioning:"提案の位置づけ",kinder_proposal:"園での活用",kinder_events:"具体イベント案",reassurance:"不安解消",
+  challenge:"課題",positioning:"提案の位置づけ",ikupower:"育つ力",programs:"選べるプログラム",kinder_proposal:"園での活用",kinder_events:"具体イベント案",reassurance:"不安解消",
   event_proposal:"活用シーン",event_cases:"具体企画案",strengths:"この企画の強み",service_range:"提供範囲",flow:"実施の流れ",
   faq:"よくある質問",pricing:"料金",
 };
@@ -305,7 +326,7 @@ function PositioningSection({ content, W }) {
         <R d={0.05}>
           <div style={{ background: "linear-gradient(135deg,#fff0ee,#fce8f3)", border: `2px solid ${C.rose}40`, borderRadius: 20, padding: "32px 40px", textAlign: "center", marginBottom: 48 }}>
             <div style={{ fontFamily: "'Noto Serif JP',serif", fontSize: "clamp(18px,3vw,26px)", fontWeight: 700, color: C.text, lineHeight: 1.7 }}>
-              "教室"ではなく、<span style={{ color: C.rose }}>"参加したくなる体験企画"</span>として導入できます。
+              {content.positioningPre ?? '"教室"ではなく、'}<span style={{ color: C.rose }}>{content.positioningEm ?? '"参加したくなる体験企画"'}</span>{content.positioningPost ?? "として導入できます。"}
             </div>
           </div>
         </R>
@@ -423,6 +444,84 @@ function ReassuranceSection({ content, W }) {
             </R>
           ))}
         </div>
+      </div>
+    </CSection>
+  );
+}
+
+function KinderIkuPowerSection({ content, W }) {
+  return (
+    <CSection id="ikupower" bg={C.white}>
+      <div style={W}>
+        <H sub="WHY IT MATTERS">遊びながら、子どもの「育つ力」が伸びる</H>
+        <R d={0.05}><p style={{ fontSize: 15, color: C.muted, lineHeight: 2, marginBottom: 40 }}>{content.ikuIntro}</p></R>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 18 }}>
+          {content.ikuPowers.map((p, i) => (
+            <R key={p.title} d={i * 0.08}>
+              <div style={{ background: C.white, border: `1.5px solid ${C.border}`, borderRadius: 18, padding: "28px 24px", height: "100%", borderTop: `4px solid ${p.accent}`, boxShadow: "0 4px 24px #e8847a0e" }}>
+                <div style={{ width: 56, height: 56, borderRadius: "50%", background: `${p.accent}1a`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, marginBottom: 16 }}>{p.icon}</div>
+                <div style={{ fontFamily: "'Noto Serif JP',serif", fontWeight: 700, fontSize: 17, color: C.text, marginBottom: 10 }}>{p.title}</div>
+                <p style={{ fontSize: 13.5, color: C.muted, lineHeight: 1.9, margin: 0 }}>{p.body}</p>
+              </div>
+            </R>
+          ))}
+        </div>
+        <R d={0.45}>
+          <div style={{ marginTop: 36, padding: "24px 32px", background: "linear-gradient(135deg,#fff0ee,#fce8f3)", border: `1.5px solid ${C.border}`, borderRadius: 16, textAlign: "center" }}>
+            <div style={{ fontFamily: "'Noto Serif JP',serif", fontSize: 17, fontWeight: 700, color: C.text, lineHeight: 1.7 }}>「楽しかった！」の先に、ちゃんと “育ち” が残る。</div>
+            <div style={{ fontSize: 14, color: C.muted, marginTop: 8 }}>だから保護者にも、園にも喜ばれる活動になります。</div>
+          </div>
+        </R>
+      </div>
+    </CSection>
+  );
+}
+
+function KinderProgramsSection({ content, W }) {
+  return (
+    <CSection id="programs" bg={C.bgAlt}>
+      <div style={W}>
+        <H sub="PROGRAM LINEUP">園に合わせて、選べる知育プログラム</H>
+        <R d={0.05}><p style={{ fontSize: 15, color: C.muted, lineHeight: 2, marginBottom: 36 }}>{content.programsIntro}</p></R>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 16, marginBottom: 48 }}>
+          {content.programs.map((p, i) => (
+            <R key={p.name} d={i * 0.1}>
+              <div style={{ background: C.white, border: `1.5px solid ${C.border}`, borderRadius: 18, padding: "26px 24px", height: "100%" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+                  <span style={{ fontSize: 32 }}>{p.icon}</span>
+                  <div style={{ fontFamily: "'Noto Serif JP',serif", fontWeight: 700, fontSize: 17, color: C.text }}>{p.name}</div>
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
+                  <span style={{ fontSize: 11, color: C.pink, background: "linear-gradient(135deg,#fff0ee,#fce8f3)", border: `1px solid ${C.border}`, borderRadius: 50, padding: "4px 12px", fontWeight: 500 }}>{p.tag}</span>
+                  <span style={{ fontSize: 11, color: C.muted, background: C.bgAlt, border: `1px solid ${C.border}`, borderRadius: 50, padding: "4px 12px" }}>{p.age}</span>
+                </div>
+                <p style={{ fontSize: 13.5, color: C.muted, lineHeight: 1.9, margin: 0 }}>{p.body}</p>
+              </div>
+            </R>
+          ))}
+        </div>
+        <R d={0.1}><div style={{ fontFamily: "'Noto Sans JP',sans-serif", fontSize: 12, letterSpacing: "0.18em", color: C.pink, marginBottom: 18, fontWeight: 500, textAlign: "center" }}>PROGRAM EXAMPLES</div></R>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 20 }}>
+          {content.flyers.map((f, i) => (
+            <R key={f.label} d={i * 0.12}>
+              <div style={{ borderRadius: 18, overflow: "hidden", border: `1.5px solid ${C.border}`, background: C.white, boxShadow: "0 6px 28px #e8847a14" }}>
+                <a href={f.src} target="_blank" rel="noopener noreferrer" style={{ display: "block", position: "relative" }}>
+                  <img src={f.src} alt={f.label} style={{ width: "100%", display: "block" }} />
+                  <span style={{ position: "absolute", bottom: 12, right: 12, background: "rgba(42,26,26,0.7)", color: "#fff", fontSize: 11, padding: "5px 12px", borderRadius: 50, backdropFilter: "blur(4px)" }}>タップで拡大 ⤢</span>
+                </a>
+                <div style={{ padding: "18px 22px" }}>
+                  <div style={{ fontFamily: "'Noto Serif JP',serif", fontWeight: 700, fontSize: 15, color: C.text, marginBottom: 6 }}>{f.label}</div>
+                  <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.8, margin: 0 }}>{f.desc}</p>
+                </div>
+              </div>
+            </R>
+          ))}
+        </div>
+        <R d={0.4}>
+          <div style={{ marginTop: 32, padding: "20px 28px", background: C.white, border: `1.5px solid ${C.border}`, borderRadius: 14, fontSize: 14, color: C.muted, lineHeight: 1.9, textAlign: "center" }}>
+            ここに挙げたのは一例です。<strong style={{ color: C.pink }}>園のテーマや行事に合わせて、内容はいくらでもアレンジできます。</strong><br />「こんなことできる？」というご相談から一緒に考えます。
+          </div>
+        </R>
       </div>
     </CSection>
   );
@@ -776,6 +875,8 @@ function CustomerView() {
         case "intro": return <IntroSection key={id} content={content} />;
         case "challenge": return <ChallengeSection key={id} content={content} W={W} />;
         case "positioning": return <PositioningSection key={id} content={content} W={W} />;
+        case "ikupower": return <KinderIkuPowerSection key={id} content={content} W={W} />;
+        case "programs": return <KinderProgramsSection key={id} content={content} W={W} />;
         case "kinder_proposal": return <KinderProposalSection key={id} content={content} W={W} />;
         case "kinder_events": return <KinderEventsSection key={id} content={content} W={W} />;
         case "reassurance": return <ReassuranceSection key={id} content={content} W={W} />;
@@ -839,10 +940,12 @@ const P_SECTIONS_BY_TARGET = {
   ],
 
   kindergarten: [
-    { id: "intro",    label: "イントロ",        script: "本日はお時間をいただきありがとうございます。\n株式会社aim roseの〇〇と申します。\n\n本日は裁縫教室そのもののご案内というより、園やイベントの中で使える「体験企画」としてご紹介できればと思っています。\n\n特に、保護者の方やお子さまにとって、作って終わりではなく、持ち帰って思い出に残るような企画として活用できる可能性があります。\n\nどうぞよろしくお願いいたします。" },
+    { id: "intro",    label: "イントロ",        script: "本日はお時間をいただきありがとうございます。\n株式会社aim roseの〇〇と申します。\n\n本日は、園で取り入れていただける「知育プログラム」としてご紹介できればと思っています。\n\n裁縫や造形を通して、子どもの創造力・集中力・自己肯定感といった “育つ力” を引き出す内容です。先生が指導する必要はなく、作って終わりではなく、持ち帰って思い出にも残る企画として活用いただけます。\n\nどうぞよろしくお願いいたします。" },
     { id: "ice",      label: "アイスブレイク",   script: "●●様、今日お時間いただけた背景として、何か現在の行事やイベントで感じていらっしゃることがあればお聞きしてもよろしいでしょうか？\n\n（相手の回答を受ける）\n\nありがとうございます。年間行事の中で、保護者参加型の企画はいかがでしょうか。\n\n現在の企画で「もう少し参加者が喜ぶ形にしたい」と感じていらっしゃる部分はありますか？\n\nなるほど。その部分で弊社のサービスが何かお役に立てるかもしれません。" },
     { id: "challenge",label: "よくある課題",    script: "まず、園を運営される担当者様が日々感じていらっしゃる課題について、整理させてください。\n\n「毎年似たような行事になってしまう」「保護者が参加しやすい企画を考えるのが難しい」というお声はよく聞きます。\n\nここで申し上げたいのは、これらの課題に対して「裁縫教室」が意外な解決策になるということです。\n\n少し意外に聞こえるかもしれませんが、次のスライドで位置づけをご説明します。" },
-    { id: "positioning",label:"提案の位置づけ", script: "弊社がご提案するのは、「裁縫教室」ではなく、参加したくなる「体験企画」です。\n\n参加者にとっては、自分で作った、家に持ち帰れる、写真に残せる、という体験価値があります。\n\n主催者側にとっては、企画しやすい、告知しやすい、当日運営しやすい、という実務的なメリットがあります。\n\n「親子でつくる○○」という告知文は、そのまま集客コピーになります。" },
+    { id: "positioning",label:"提案の位置づけ", script: "弊社がご提案するのは、「裁縫教室」ではなく、子どもの力が育つ「知育プログラム」です。\n\n園にとっては、「教える」のではなく「育つ体験を届ける」という発想で導入いただけます。\n\n参加した子どもにとっては、自分で作った、家に持ち帰れる、できた！という達成感が残る。\n\n園にとっては、企画しやすい、告知しやすい、当日運営しやすい。「親子でつくる○○」という告知文は、そのまま集客コピーになります。" },
+    { id: "ikupower",  label:"育つ力",          script: "この活動で何が育つのか、5つの力に整理してご説明します。\n\n創造力・発想力、色彩感覚・表現力、指先の発達、集中力、そして達成感・自己肯定感です。\n\nポイントは、子どもが「楽しい！」と夢中になっているうちに、自然とこれらの力が育つということです。\n\n保護者の方にも「ただ遊んだだけ」ではなく「成長につながる時間だった」とご納得いただける、それが園としての価値になります。" },
+    { id: "programs",  label:"選べるプログラム", script: "プログラムは1つではなく、園のご希望に合わせてお選びいただけます。\n\nたとえば、針を使わずはさみとのりだけでできる「お洋服デザイナー」は年少さんから安心。\n\n子ども針にチャレンジする「ニット帽リメイク」は、年中・年長向けで、SDGsの学びにもつながります。\n\n（チラシをお見せしながら）こちらが実際のプログラム資料です。年齢・季節・行事に合わせて、内容は自由にアレンジできますので、まずは「こんなことできる？」というところから一緒に考えさせてください。" },
     { id: "kinder_proposal",label:"園での活用", script: "具体的には、以下のような場面で活用できます。\n\n親子参加イベント、入園・進級準備イベント、季節行事、祖父母参観、未就園児向けイベント、卒園前の思い出づくりなどです。\n\n重要なのは、「園が裁縫を教える」のではなく、「園が思い出に残る体験機会を提供する」という発想です。\n\n先生が何かを指導する必要は一切ありません。" },
     { id: "kinder_events",label:"具体イベント案",script: "具体的なイベント案をいくつかご紹介します。\n\n「親子でつくるオリジナル巾着」は年少〜年長・保護者対象で60〜90分。主催者側は場所と人数連絡のみです。\n\n「入園準備ネームタグ・ワッペンづくり」は新入園児・保護者向けで入園不安の軽減に効果的です。\n\n「未就園児向けはじめての手づくり体験」は0〜3歳と保護者対象で30〜45分。入園前の来園理由になり、口コミ波及しやすいです。\n\nそれぞれ、先生の準備は一切不要です。" },
     { id: "reassurance",label:"不安解消",       script: "「楽しそう」より先に、担当者様が感じる不安があります。実務的にお答えします。\n\n「針を使うのは危なくないか」→年齢に応じて針を使わない内容も設計可能です。3〜4歳はシール・接着剤中心で対応します。\n\n「先生の準備が増えないか」→材料・道具・進行台本はすべて講師側で用意。先生は場所と人数確認のみです。\n\n「参加人数が多い場合どうするか」→少人数制・時間入替制で運営可能です。\n\nこれらは実際に多くの園様から事前にいただいた質問です。" },
