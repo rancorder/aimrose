@@ -698,16 +698,19 @@ function PricingSection({ W }) {
     <section id="pricing" style={{ background: C.bg, padding: "88px 0" }}>
       <div style={W}>
         <H sub="PRICING">料金プラン</H>
-        <R d={0.05}><p style={{ fontSize: 14, color: C.muted, lineHeight: 2, marginBottom: 40 }}>※ 想定参加人数10名のプランです。人数が異なる場合はお気軽にご相談ください。</p></R>
+        <R d={0.05}><p style={{ fontSize: 14, color: C.muted, lineHeight: 2, marginBottom: 40 }}>※ 想定参加人数10名・月1回開催のプランです。価格は月あたりの目安。人数・頻度が異なる場合はお気軽にご相談ください。</p></R>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 20, marginBottom: 32 }}>
-          {[{ name: "お試しプラン", duration: "1回", price: "40,000", note: "まずはお試しで", highlight: false },{ name: "3ヶ月プラン", duration: "3ヶ月", price: "180,000", note: "月60,000円相当", highlight: false },{ name: "6ヶ月プラン", duration: "6ヶ月", price: "330,000", note: "月55,000円相当", highlight: true },{ name: "1年プラン", duration: "12ヶ月", price: "600,000", note: "月50,000円相当", highlight: false }].map((plan, i) => (
+          {[{ name: "お試しプラン", unit: "40,000", suffix: "/回", times: "1回のみ（単発）", total: null, highlight: false },{ name: "3ヶ月プラン", unit: "60,000", suffix: "/月", times: "× 3ヶ月", total: "180,000", highlight: false },{ name: "6ヶ月プラン", unit: "55,000", suffix: "/月", times: "× 6ヶ月", total: "330,000", highlight: true },{ name: "1年プラン", unit: "50,000", suffix: "/月", times: "× 12ヶ月", total: "600,000", highlight: false }].map((plan, i) => (
             <R key={plan.name} d={i * 0.1}>
               <div style={{ borderRadius: 20, border: plan.highlight ? `2px solid ${C.rose}` : `1.5px solid ${C.border}`, background: plan.highlight ? "linear-gradient(160deg,#fff0ee,#fce8f3)" : C.white, padding: "32px 20px", textAlign: "center", position: "relative", boxShadow: plan.highlight ? `0 8px 40px ${C.rose}20` : "none" }}>
                 {plan.highlight && <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: `linear-gradient(135deg,${C.rose},${C.pink})`, color: "#fff", fontSize: 11, fontWeight: 700, padding: "4px 16px", borderRadius: 50, whiteSpace: "nowrap" }}>人気プラン</div>}
-                <div style={{ fontSize: 12, color: C.pink, letterSpacing: "0.12em", marginBottom: 10, fontWeight: 500 }}>{plan.name}</div>
-                <div style={{ fontSize: 13, color: C.muted, marginBottom: 16 }}>{plan.duration}</div>
-                <div style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(28px,4vw,38px)", fontWeight: 900, background: `linear-gradient(135deg,${C.rose},${C.pink})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", lineHeight: 1 }}>¥{plan.price}</div>
-                <div style={{ fontSize: 12, color: C.muted, marginTop: 8 }}>{plan.note}</div>
+                <div style={{ fontSize: 12, color: C.pink, letterSpacing: "0.12em", marginBottom: 16, fontWeight: 500 }}>{plan.name}</div>
+                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: 3 }}>
+                  <span style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(28px,4.4vw,40px)", fontWeight: 900, background: `linear-gradient(135deg,${C.rose},${C.pink})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", lineHeight: 1 }}>¥{plan.unit}</span>
+                  <span style={{ fontSize: 14, color: C.muted, fontWeight: 500 }}>{plan.suffix}</span>
+                </div>
+                <div style={{ fontSize: 15, color: C.text, fontWeight: 700, marginTop: 12 }}>{plan.times}</div>
+                <div style={{ fontSize: 12, color: C.muted, marginTop: 10 }}>{plan.total ? `お支払い総額 ¥${plan.total}` : "まずは気軽にお試し"}</div>
               </div>
             </R>
           ))}
@@ -937,7 +940,7 @@ const P_SECTIONS_BY_TARGET = {
     { id: "works",    label: "制作物",      script: "実際にご入居者様が制作された作品をご覧いただきます。\n\n「こんなものが作れるの？」という驚きの声をよくいただきます。" },
     { id: "hearing",  label: "ヒアリング",  script: "ここまで一方的にお話ししてしまいました。ここからは御社の現状をお聞かせいただければと思います。", bant: true },
     { id: "faq",      label: "Q&A",        script: "Q: ミシンの持ち込みは必要ですか？\n→ ミシン環境のない場合は手縫い中心に切り替えできます。\n\nQ: 高齢の方でも参加できますか？\n→ 負担の少ない内容に調整できますのでご安心ください。" },
-    { id: "pricing",  label: "料金",        script: "想定参加人数10名のプランです。\n\nお試しプランが4万円。\n3ヶ月プランが18万円（月6万円相当）。\n6ヶ月プランが33万円（月5.5万円相当）。人気プランです。\n1年プランが60万円（月5万円相当）。" },
+    { id: "pricing",  label: "料金",        script: "想定参加人数10名・月1回開催のプランです。月あたりの金額でご案内します。\n\nお試しは1回4万円から。\n3ヶ月プランは月6万円 × 3ヶ月。\n6ヶ月プランは月5.5万円 × 6ヶ月。いちばん人気です。\n1年プランは月5万円 × 12ヶ月。続けるほど月あたりがお得になります。" },
     { id: "closing",  label: "クロージング", script: "ありがとうございます。まずは御社の体制やご希望を伺いながら最適なプランを具体化させていただければと思っています。\n\nたとえば「〇月〇日（〇曜日）」か「〇月〇日（〇曜日）」にお時間いただくことは可能でしょうか？\n\n① 「午前と午後はどちらがご都合よろしいでしょうか」\n② 「●時と●時ではどちらがよろしいでしょうか」" },
     { id: "obj",      label: "切り返し",    script: null, objections: true },
   ],
@@ -957,7 +960,7 @@ const P_SECTIONS_BY_TARGET = {
     { id: "flow",     label:"実施の流れ",       script: "実施の流れは6ステップです。\n\n事前ヒアリング→企画メニュー決定→告知・集客サポート→当日実施→完成品持ち帰り→次回開催提案という流れです。\n\n主催者様が動くのは、ヒアリング時の情報共有と日程調整、当日の場所提供のみです。\n\nまずは既存行事・既存イベントに組み込めるか確認してみましょう。" },
     { id: "hearing",  label:"ヒアリング",       script: "ここまで一方的にお話ししてしまいました。\nここからは御園の現状や気になった部分をお聞かせいただければと思います。\n\n年間行事の中で、保護者参加型の企画はありますか？\n未就園児向けの園開放イベントは実施されていますか？\n先生方の準備負担が少ない形であれば、外部企画の導入余地はありますか？", bant: true },
     { id: "faq",      label:"Q&A",             script: "Q: 針を使う内容と使わない内容、どちらでも対応できますか？\n→ はい。年齢に応じて接着剤・シール中心から手縫いまで対応可能です。\n\nQ: 少人数でも依頼できますか？\n→ はい、小規模から対応可能です。\n\nQ: 告知文の作成も相談できますか？\n→ はい、告知文案・チラシ文面の作成もサポート可能です。" },
-    { id: "pricing",  label:"料金",             script: "想定参加人数10名のプランです。\n\nお試しプランが4万円。まずは1回試していただけます。\n3ヶ月プランが18万円（月6万円相当）。\n6ヶ月プランが33万円（月5.5万円相当）。人気プランです。\n1年プランが60万円（月5万円相当）。\n\n人数・内容のご要望は別途ご相談いただけます。" },
+    { id: "pricing",  label:"料金",             script: "想定参加人数10名・月1回開催のプランです。月あたりの金額でご案内します。\n\nお試しは1回4万円。まずは1回試していただけます。\n3ヶ月プランは月6万円 × 3ヶ月。\n6ヶ月プランは月5.5万円 × 6ヶ月。いちばん人気です。\n1年プランは月5万円 × 12ヶ月。続けるほど月あたりがお得になります。\n\n人数・内容のご要望は別途ご相談いただけます。" },
     { id: "closing",  label:"クロージング",     script: "ありがとうございます。\nまずは、現在予定されている行事やイベントの中で、組み込めそうな場面があるか一緒に確認できればと思います。\n\n小規模なテスト開催から相談可能ですので、まずは次回30分ほどお時間をいただければ具体的な企画案を数パターンご提示できます。\n\nたとえば「〇月〇日（〇曜日）」か「〇月〇日（〇曜日）」はいかがでしょうか？" },
     { id: "obj",      label:"切り返し",         script: null, objections: true },
   ],
@@ -974,7 +977,7 @@ const P_SECTIONS_BY_TARGET = {
     { id: "flow",     label:"実施の流れ",       script: "実施の流れは6ステップです。\n\n事前ヒアリング→企画メニュー決定→告知・集客サポート→当日実施→完成品持ち帰り→次回開催提案という流れです。\n\n当日の準備・設営・進行・片付けまですべて対応します。\n\nまずは既存イベントに組み込めるか確認してみましょう。" },
     { id: "hearing",  label:"ヒアリング",       script: "ここまで一方的にお話ししてしまいました。\n\n来場者の滞在時間を伸ばしたいイベントはありますか？\n物販・抽選会以外の体験コンテンツを探すことはありますか？\n写真やSNSに残る企画を求められることはありますか？\n参加者アンケートや次回導線まで必要ですか？", bant: true },
     { id: "faq",      label:"Q&A",             script: "Q: 当日の準備は必要ですか？\n→ 材料・道具はすべて持参。会場と参加者数のご連絡のみで大丈夫です。\n\nQ: 屋外イベントでも対応できますか？\n→ 手縫い中心であれば屋外でも可能な場合があります。\n\nQ: 参加人数が多い場合は？\n→ 時間入替制・複数ブース対応も可能です。" },
-    { id: "pricing",  label:"料金",             script: "想定参加人数10名のプランです。\n\nお試しプランが4万円。\n3ヶ月プランが18万円。\n6ヶ月プランが33万円。人気プランです。\n1年プランが60万円。\n\n人数・内容・開催回数のご要望は別途ご相談いただけます。" },
+    { id: "pricing",  label:"料金",             script: "想定参加人数10名・月1回開催のプランです。月あたりの金額でご案内します。\n\nお試しは1回4万円。\n3ヶ月プランは月6万円 × 3ヶ月。\n6ヶ月プランは月5.5万円 × 6ヶ月。いちばん人気です。\n1年プランは月5万円 × 12ヶ月。\n\n人数・内容・開催回数のご要望は別途ご相談いただけます。" },
     { id: "closing",  label:"クロージング",     script: "ありがとうございます。\nまずは、現在予定されているイベントの中で、組み込めそうな場面があるか一緒に確認できればと思います。\n\n小規模なテスト開催から相談可能ですので、次回30分ほどお時間をいただければ具体的な企画案を数パターンご提示できます。\n\nたとえば「〇月〇日（〇曜日）」か「〇月〇日（〇曜日）」はいかがでしょうか？" },
     { id: "obj",      label:"切り返し",         script: null, objections: true },
   ],
